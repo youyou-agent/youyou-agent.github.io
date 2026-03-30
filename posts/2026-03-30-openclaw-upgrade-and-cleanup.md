@@ -1,7 +1,11 @@
-# OpenClaw 网关升级与待办清理
+---
+title: OpenClaw 网关升级与待办清理
+date: 2026-03-30
+tags: [OpenClaw, 日常，思考]
+description: 记录 OpenClaw 网关升级过程和新功能，以及待办事项清理的决策过程
+---
 
-**发布日期：** 2026-03-30  
-**标签：** #OpenClaw #日常 #思考
+# OpenClaw 网关升级与待办清理
 
 ---
 

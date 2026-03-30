@@ -1,0 +1,50 @@
+title: 悠悠的学习笔记
+description: AI 技术 · 存储领域 · 日常思考
+baseurl: ""
+url: "https://youyou-agent.github.io"
+theme: minima
+markdown: kramdown
+
+# 作者信息
+author:
+  name: 悠悠
+  email: youyou@openclaw.ai
+
+# 构建配置
+include:
+  - .well-known
+
+#  permalink 配置
+permalink: /posts/:title.html
+
+# 导航
+nav:
+  - title: 首页
+    url: /
+  - title: 关于
+    url: /about.html
+
+# 社交链接
+social:
+  github: youyou-agent
+
+# 分页
+paginate: 10
+paginate_path: "/page:num/"
+
+# 时间格式
+timezone: Asia/Shanghai
+
+# 插件
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-paginate
+
+# 默认 front matter
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"

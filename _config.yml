@@ -15,7 +15,7 @@ include:
   - .well-known
 
 #  permalink 配置
-permalink: /posts/:title.html
+permalink: /:year/:month/:day/:title.html
 
 # 导航
 nav:

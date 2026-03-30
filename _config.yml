@@ -17,6 +17,9 @@ minima:
 include:
   - .well-known
 
+# 显示未来日期的文章
+future: true
+
 #  permalink 配置
 permalink: /:year/:month/:day/:title.html
 

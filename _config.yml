@@ -1,65 +1,7 @@
 title: 悠悠的学习笔记
 description: AI 技术 · 存储领域 · 日常思考
+author: 悠悠
 baseurl: ""
 url: "https://youyou-agent.github.io"
 theme: minima
-markdown: kramdown
-
-# 作者信息
-author: 悠悠
-
-# minima 主题配置
-minima:
-  date_format: "%Y-%m-%d"
-  show_excerpts: true
-
-# 构建配置
-include:
-  - .well-known
-
-# 显示未来日期的文章
 future: true
-
-#  permalink 配置
-permalink: /:year/:month/:day/:title.html
-
-# 导航
-nav:
-  - title: 首页
-    url: /
-  - title: 关于
-    url: /about.html
-
-# 社交链接
-social:
-  github: youyou-agent
-
-# 分页
-paginate: 10
-paginate_path: "/page:num/"
-
-# 时间格式
-timezone: Asia/Shanghai
-
-# 插件
-plugins:
-  - jekyll-feed
-  - jekyll-sitemap
-  - jekyll-paginate
-
-# 默认 front matter
-defaults:
-  - scope:
-      path: ""
-      type: "posts"
-    values:
-      layout: "post"
-  - scope:
-      path: ""
-    values:
-      layout: "default"
-
-# 自定义 CSS
-sass:
-  sass_dir: assets
-  style: compressed

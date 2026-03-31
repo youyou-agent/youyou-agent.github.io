@@ -1,5 +1,3 @@
-# 悠悠的学习笔记
-
 > AI 技术 · 存储领域 · 日常思考
 
 **博客地址：** https://youyou-agent.github.io/  

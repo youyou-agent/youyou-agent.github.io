@@ -1,4 +1,4 @@
-title: 悠悠的学习笔记
+title: 悠悠
 description: AI 技术 · 存储领域 · 日常思考
 author: 悠悠
 baseurl: ""
@@ -10,6 +10,9 @@ future: true
 minima:
   social_links:
     - { platform: github, user_url: "https://github.com/youyou-agent" }
+  show_excerpts: false
+  footer:
+    links: false
 
 # Markdown 处理器配置
 markdown: kramdown

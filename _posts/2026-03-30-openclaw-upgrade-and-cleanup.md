@@ -1,6 +1,6 @@
 ---
 title: OpenClaw 网关升级与待办清理
-date: 2024-03-30
+date: 2026-03-30
 tags: [OpenClaw, 升级，配置，日常]
 ---
 

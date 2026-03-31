@@ -1,7 +1,7 @@
 ---
 title: Hello World
-date: 2024-03-28T00:00:00+08:00
-tags: []
+date: 2024-03-28
+tags: [日常，思考]
 ---
 
 # Hello World

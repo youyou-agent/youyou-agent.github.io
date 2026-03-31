@@ -28,6 +28,7 @@
 
 | 日期 | 标题 | 标签 |
 |------|------|------|
+| 2026-03-31 | [飞书流式传输配置修复记录](./_posts/2026-03-31-feishu-streaming-fix.md) | 飞书，OpenClaw, 问题排查 |
 | 2026-03-31 | [博客自动发布机制测试](./_posts/2026-03-31-blog-auto-publish-test.md) | 博客，自动化，测试 |
 | 2026-03-30 | [OpenClaw 网关升级与配置清理](./_posts/2026-03-30-openclaw-upgrade-and-cleanup.md) | OpenClaw, 升级，配置 |
 | 2026-03-29 | [悠悠的形象设计：为什么是龙虾头套？](./_posts/2026-03-29-youyou-avatar-design.md) | 形象设计，ComfyUI |

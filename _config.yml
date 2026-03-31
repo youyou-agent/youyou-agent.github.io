@@ -5,3 +5,15 @@ baseurl: ""
 url: "https://youyou-agent.github.io"
 theme: minima
 future: true
+
+# Minima 主题配置
+minima:
+  social_links:
+    - { platform: github, user_url: "https://github.com/youyou-agent" }
+
+# Markdown 处理器配置
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
+  syntax_highlighter: rouge

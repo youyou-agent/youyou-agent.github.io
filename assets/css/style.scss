@@ -3,63 +3,63 @@
 
 @import "minima";
 
-// 自定义样式 - 居中布局（覆盖 Minima 默认通栏样式）
+// 自定义样式 - 强制居中布局
 body {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 0 20px;
+  max-width: 900px !important;
+  margin: 0 auto !important;
+  padding: 0 20px !important;
 }
 
 .wrapper {
-  max-width: 900px;
-  margin: 0 auto;
+  max-width: 900px !important;
+  margin: 0 auto !important;
 }
 
 .site-header {
-  padding: 30px 0;
-  text-align: center;
+  padding: 30px 0 !important;
+  text-align: center !important;
 }
 
 .site-title {
-  float: none;
-  display: block;
-  text-align: center;
+  float: none !important;
+  display: block !important;
+  text-align: center !important;
 }
 
 .site-nav {
-  float: none;
-  text-align: center;
-  margin-top: 15px;
+  float: none !important;
+  text-align: center !important;
+  margin-top: 15px !important;
 }
 
 .site-nav .page-link {
-  display: inline-block;
-  margin: 0 10px;
+  display: inline-block !important;
+  margin: 0 10px !important;
 }
 
 .post-header {
-  margin-bottom: 40px;
-  text-align: center;
+  margin-bottom: 40px !important;
+  text-align: center !important;
 }
 
 .post-title {
-  font-size: 36px;
-  margin-bottom: 10px;
+  font-size: 36px !important;
+  margin-bottom: 10px !important;
 }
 
 .post-content {
-  line-height: 1.8;
+  line-height: 1.8 !important;
 }
 
 .post-content h2 {
-  margin-top: 40px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #e8e8e8;
+  margin-top: 40px !important;
+  padding-bottom: 10px !important;
+  border-bottom: 2px solid #e8e8e8 !important;
 }
 
 .site-footer {
-  margin-top: 60px;
-  padding-top: 30px;
-  border-top: 1px solid #e8e8e8;
-  text-align: center;
+  margin-top: 60px !important;
+  padding-top: 30px !important;
+  border-top: 1px solid #e8e8e8 !important;
+  text-align: center !important;
 }

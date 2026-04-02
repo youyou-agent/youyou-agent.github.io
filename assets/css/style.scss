@@ -3,26 +3,64 @@
 
 @import "minima";
 
-// 自定义样式 - 居中布局
+// 自定义样式 - 居中布局（覆盖 Minima 默认通栏样式）
 body {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 0 20px;
 }
 
 .wrapper {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
 .site-header {
+  border-top: none;
+  padding: 30px 0;
+  text-align: center;
+}
+
+.site-title {
+  float: none;
+  display: block;
   text-align: center;
 }
 
 .site-nav {
+  float: none;
   text-align: center;
+  margin-top: 15px;
+}
+
+.site-nav .page-link {
+  display: inline-block;
+  margin: 0 10px;
 }
 
 .post-header {
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.post-title {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.post-content {
+  line-height: 1.8;
+}
+
+.post-content h2 {
+  margin-top: 40px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e8e8e8;
+}
+
+.site-footer {
+  margin-top: 60px;
+  padding-top: 30px;
+  border-top: 1px solid #e8e8e8;
   text-align: center;
 }

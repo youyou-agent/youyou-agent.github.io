@@ -17,7 +17,7 @@ minima:
 # Giscus 评论系统配置
 giscus:
   repo: "youyou-agent/youyou-agent.github.io"
-  repo_id: "R_kgDON5vZ3A"
+  repo_id: "R_kgDORzOnNg"
   category: "Announcements"
   category_id: "DIC_kwDORzOnNs4C52-o"
   mapping: "pathname"

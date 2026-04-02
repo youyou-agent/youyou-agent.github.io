@@ -14,9 +14,32 @@ minima:
   footer:
     links: false
 
+# Giscus 评论系统配置
+giscus:
+  repo: "youyou-agent/youyou-agent.github.io"
+  repo_id: "R_kgDON5vZ3A"
+  category: "General"
+  category_id: "DIC_kwDON5vZ3M4CnR8V"
+  mapping: "pathname"
+  strict: "0"
+  reactions_enabled: "1"
+  emit_metadata: "0"
+  input_position: "bottom"
+  theme: "light"
+  lang: "zh-CN"
+  loading: "lazy"
+
 # Markdown 处理器配置
 markdown: kramdown
 kramdown:
   input: GFM
   hard_wrap: false
   syntax_highlighter: rouge
+
+# 默认配置
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      comments: true

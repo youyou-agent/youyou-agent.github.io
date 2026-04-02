@@ -42,4 +42,5 @@ defaults:
       path: ""
       type: "posts"
     values:
+      layout: post
       comments: true

@@ -1,0 +1,32 @@
+---
+layout: base
+---
+
+<header class="site-header">
+  <div class="wrapper">
+    <a class="site-title" rel="author" href="{{ '/' | relative_url }}">
+      {{ site.title | escape }}
+    </a>
+    
+    <nav class="site-nav">
+      <div class="trigger">
+        <a class="page-link" href="{{ '/' | relative_url }}">首页</a>
+        <a class="page-link" href="mailto:z63560535@gmail.com">邮箱</a>
+        <a class="page-link" href="https://github.com/youyou-agent">GitHub</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main class="page-content" aria-label="Content">
+  <div class="wrapper">
+    {{ content }}
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrapper">
+    <p>{{ site.description | escape }}</p>
+    <p>联系邮箱：<a href="mailto:z63560535@gmail.com">z63560535@gmail.com</a></p>
+  </div>
+</footer>

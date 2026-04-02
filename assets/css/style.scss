@@ -1,0 +1,43 @@
+---
+---
+
+@import "minima";
+
+// 自定义样式 - 恢复居中布局
+body {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.wrapper {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.site-header {
+  text-align: center;
+}
+
+.site-title {
+  text-align: center;
+}
+
+.site-nav {
+  text-align: center;
+}
+
+.post-header {
+  text-align: center;
+}
+
+.post-content {
+  text-align: left;
+}
+
+.site-footer {
+  text-align: center;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #e8e8e8;
+}

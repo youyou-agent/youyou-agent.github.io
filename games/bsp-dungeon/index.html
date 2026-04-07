@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BSP 地牢探险 - Roguelike</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a0a;
+    color: #ccc;
+    font-family: 'Courier New', monospace;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+  #header {
+    width: 100%;
+    max-width: 960px;
+    padding: 8px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #111;
+    border-bottom: 1px solid #333;
+  }
+  #header h1 {
+    font-size: 16px;
+    color: #f0c040;
+    letter-spacing: 2px;
+  }
+  #hud {
+    display: flex;
+    gap: 20px;
+    font-size: 14px;
+  }
+  .hud-item { color: #aaa; }
+  .hud-item span { font-weight: bold; }
+  .hp-val { color: #4f4; }
+  .level-val { color: #8af; }
+  .kill-val { color: #f88; }
+  #game-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+  canvas {
+    image-rendering: pixelated;
+    border: 1px solid #333;
+  }
+  #log {
+    width: 100%;
+    max-width: 960px;
+    height: 120px;
+    overflow-y: auto;
+    background: #111;
+    border-top: 1px solid #333;
+    padding: 6px 12px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .log-combat { color: #f88; }
+  .log-item { color: #4f4; }
+  .log-info { color: #8af; }
+  .log-system { color: #888; }
+  #start-screen {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.95);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  #start-screen h1 {
+    font-size: 36px;
+    color: #f0c040;
+    margin-bottom: 16px;
+    letter-spacing: 4px;
+  }
+  #start-screen .subtitle {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 32px;
+  }
+  #start-screen .controls {
+    font-size: 13px;
+    color: #aaa;
+    line-height: 2;
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  #start-screen .start-btn {
+    font-size: 18px;
+    color: #f0c040;
+    animation: blink 1.2s infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  #death-screen {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(80,0,0,0.9);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  #death-screen h1 {
+    font-size: 48px;
+    color: #f44;
+    margin-bottom: 16px;
+  }
+  #death-stats {
+    font-size: 16px;
+    color: #ccc;
+    line-height: 2;
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  #death-screen .start-btn {
+    font-size: 18px;
+    color: #f0c040;
+    animation: blink 1.2s infinite;
+  }
+</style>
+</head>
+<body>
+<div id="start-screen">
+  <h1>⚔ BSP 地牢探险 ⚔</h1>
+  <div class="subtitle">— 基于 BSP 算法的 Roguelike 地牢 —</div>
+  <div class="controls">
+    WASD / 方向键 — 移动<br>
+    探索地牢，击败怪物，找到楼梯 &gt; 进入下一层<br>
+    拾取药水 ! 恢复生命值
+  </div>
+  <div class="start-btn">[ 按任意键开始 ]</div>
+</div>
+<div id="death-screen">
+  <h1>☠ 你死了 ☠</h1>
+  <div id="death-stats"></div>
+  <div class="start-btn">[ 按任意键重新开始 ]</div>
+</div>
+<div id="header">
+  <h1>⚔ BSP 地牢探险</h1>
+  <div id="hud">
+    <div class="hud-item">HP: <span class="hp-val" id="hp-display">100/100</span></div>
+    <div class="hud-item">层数: <span class="level-val" id="level-display">1</span></div>
+    <div class="hud-item">击杀: <span class="kill-val" id="kill-display">0</span></div>
+  </div>
+</div>
+<div id="game-container">
+  <canvas id="game"></canvas>
+</div>
+<div id="log"></div>
+
+<script>
+// ============================================================
+//  BSP 地牢探险 - Roguelike Game
+//  BSP (Binary Space Partitioning) 算法生成地牢
+//  作者: 悠悠 (youyou-agent)
+//  日期: 2026-04-07
+// ============================================================
+
+(() => {
+'use strict';
+
+// ---- 常量 ----
+const TILE_SIZE   = 16;       // 每个 tile 的像素大小
+const MAP_W       = 60;       // 地图宽度（格子数）
+const MAP_H       = 40;       // 地图高度（格子数）
+const MIN_ROOM    = 5;        // BSP 叶节点最小尺寸
+const MAX_ROOM    = 15;       // BSP 叶节点最大尺寸
+const ROOM_PAD    = 1;        // 房间与分区边缘的最小间距
+const FOV_RADIUS  = 7;        // 视野半径
+const FOV_RADIUS2 = FOV_RADIUS * FOV_RADIUS;
+
+// tile 类型
+const T = {
+  WALL:  0,
+  FLOOR: 1,
+  DOOR:  2,
+  STAIR: 3,
+};
+
+// 颜色方案
+const COLORS = {
+  wall:    '#666',       // 墙壁灰色
+  floor:   '#333',       // 地面深灰
+  door:    '#a86',       // 门棕色
+  player:  '#f0c040',    // 玩家黄色
+  monster: '#f44',       // 怪物红色
+  potion:  '#4f4',       // 药水绿色
+  stair:   '#48f',       // 楼梯蓝色
+  fogSeen: 'rgba(0,0,0,0.6)',  // 探索过但不在视野内
+  fogHide: 'rgba(0,0,0,1)',    // 未探索
+};
+
+// 怪物定义
+const MONSTER_DEFS = [
+  { ch: 'G', name: '哥布林', hp: 12, atk: 3, def: 1, exp: 5  },
+  { ch: 'S', name: '骷髅',   hp: 18, atk: 5, def: 2, exp: 8  },
+  { ch: 'O', name: '兽人',   hp: 25, atk: 7, def: 3, exp: 12 },
+  { ch: 'D', name: '恶魔',   hp: 35, atk: 10, def: 4, exp: 20 },
+];
+
+// ---- Canvas 初始化 ----
+const canvas = document.getElementById('game');
+const ctx    = canvas.getContext('2d');
+
+function resizeCanvas() {
+  const maxW = window.innerWidth;
+  const maxH = window.innerHeight - 160; // 留给 header + log
+  const scaleX = Math.floor(maxW / (MAP_W * TILE_SIZE));
+  const scaleY = Math.floor(maxH / (MAP_H * TILE_SIZE));
+  const scale = Math.max(1, Math.min(scaleX, scaleY));
+  canvas.width  = MAP_W * TILE_SIZE;
+  canvas.height = MAP_H * TILE_SIZE;
+  canvas.style.width  = (canvas.width  * scale) + 'px';
+  canvas.style.height = (canvas.height * scale) + 'px';
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+// ---- 游戏状态 ----
+let gameState = 'start'; // start | playing | dead
+let map       = [];       // 2D array [y][x] of tile types
+let visible   = [];       // 2D boolean: 当前视野
+let explored  = [];       // 2D boolean: 曾经看到过
+let monsters  = [];       // { x, y, ...monsterDef, currentHp }
+let potions   = [];       // { x, y }
+let player    = { x: 0, y: 0, hp: 100, maxHp: 100, atk: 8, def: 3 };
+let stairPos  = { x: 0, y: 0 };
+let level     = 1;
+let kills     = 0;
+let rooms     = [];       // BSP 生成的房间列表
+
+// ---- 日志系统 ----
+const logEl = document.getElementById('log');
+function addLog(msg, cls = 'log-system') {
+  const div = document.createElement('div');
+  div.className = cls;
+  div.textContent = msg;
+  logEl.appendChild(div);
+  logEl.scrollTop = logEl.scrollHeight;
+  // 限制日志条数
+  while (logEl.children.length > 100) logEl.removeChild(logEl.firstChild);
+}
+
+// ---- HUD 更新 ----
+function updateHud() {
+  document.getElementById('hp-display').textContent = `${player.hp}/${player.maxHp}`;
+  document.getElementById('level-display').textContent = level;
+  document.getElementById('kill-display').textContent = kills;
+}
+
+// ============================================================
+//  BSP 树算法
+// ============================================================
+
+/**
+ * BSP 节点
+ * 每个节点代表地图上的一个矩形区域
+ * 叶节点包含一个随机大小的房间
+ */
+class BSPNode {
+  constructor(x, y, w, h) {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.left  = null;
+    this.right = null;
+    this.room  = null; // { x, y, w, h } — 叶节点的房间
+  }
+
+  /** 递归分割空间 */
+  split() {
+    // 已经分割过则跳过
+    if (this.left || this.right) return;
+
+    // 决定水平还是垂直分割
+    // 如果太宽优先垂直分割，太高优先水平分割
+    let splitH;
+    if (this.w > this.h && this.w / this.h >= 1.25) {
+      splitH = false; // 垂直分割
+    } else if (this.h > this.w && this.h / this.w >= 1.25) {
+      splitH = true;  // 水平分割
+    } else {
+      splitH = Math.random() > 0.5;
+    }
+
+    const max = (splitH ? this.h : this.w) - MIN_ROOM;
+    if (max < MIN_ROOM) return; // 太小不分割
+
+    // 分割位置：在 [MIN_ROOM, max] 范围内随机
+    const split = randInt(MIN_ROOM, max);
+
+    if (splitH) {
+      this.left  = new BSPNode(this.x, this.y, this.w, split);
+      this.right = new BSPNode(this.x, this.y + split, this.w, this.h - split);
+    } else {
+      this.left  = new BSPNode(this.x, this.y, split, this.h);
+      this.right = new BSPNode(this.x + split, this.y, this.w - split, this.h);
+    }
+
+    // 递归分割子节点
+    this.left.split();
+    this.right.split();
+  }
+
+  /** 在叶节点中创建房间 */
+  createRooms() {
+    if (this.left || this.right) {
+      // 非叶节点：递归创建
+      if (this.left)  this.left.createRooms();
+      if (this.right) this.right.createRooms();
+    } else {
+      // 叶节点：在分区内创建一个随机大小的房间
+      const roomW = randInt(Math.max(3, this.w - 2 * ROOM_PAD - 2), this.w - 2 * ROOM_PAD);
+      const roomH = randInt(Math.max(3, this.h - 2 * ROOM_PAD - 2), this.h - 2 * ROOM_PAD);
+      const roomX = this.x + randInt(ROOM_PAD, this.w - roomW - ROOM_PAD);
+      const roomY = this.y + randInt(ROOM_PAD, this.h - roomH - ROOM_PAD);
+      this.room = { x: roomX, y: roomY, w: roomW, h: roomH };
+    }
+  }
+
+  /** 获取此节点（或子树）中的一个房间（用于连接走廊） */
+  getRoom() {
+    if (this.room) return this.room;
+    if (this.left) {
+      const r = this.left.getRoom();
+      if (r) return r;
+    }
+    if (this.right) {
+      const r = this.right.getRoom();
+      if (r) return r;
+    }
+    return null;
+  }
+
+  /** 获取所有叶节点的房间 */
+  getAllRooms() {
+    const result = [];
+    if (this.room) {
+      result.push(this.room);
+    } else {
+      if (this.left)  result.push(...this.left.getAllRooms());
+      if (this.right) result.push(...this.right.getAllRooms());
+    }
+    return result;
+  }
+}
+
+/**
+ * 连接两个兄弟节点的房间
+ * 从左子树取一个房间中心，从右子树取一个房间中心
+ * 用 L 形走廊连接
+ */
+function connectRooms(node) {
+  if (!node.left || !node.right) return;
+
+  // 递归先连接子树内部
+  connectRooms(node.left);
+  connectRooms(node.right);
+
+  // 取两个子树各一个房间
+  const roomA = node.left.getRoom();
+  const roomB = node.right.getRoom();
+  if (!roomA || !roomB) return;
+
+  // 房间中心
+  const ax = Math.floor(roomA.x + roomA.w / 2);
+  const ay = Math.floor(roomA.y + roomA.h / 2);
+  const bx = Math.floor(roomB.x + roomB.w / 2);
+  const by = Math.floor(roomB.y + roomB.h / 2);
+
+  // L 形走廊：先水平再垂直，或先垂直再水平（随机选择）
+  if (Math.random() > 0.5) {
+    carveHCorridor(ax, bx, ay);
+    carveVCorridor(ay, by, bx);
+  } else {
+    carveVCorridor(ay, by, ax);
+    carveHCorridor(ax, bx, by);
+  }
+}
+
+/** 挖水平走廊 */
+function carveHCorridor(x1, x2, y) {
+  const minX = Math.min(x1, x2);
+  const maxX = Math.max(x1, x2);
+  for (let x = minX; x <= maxX; x++) {
+    if (inBounds(x, y)) {
+      if (map[y][x] === T.WALL) {
+        map[y][x] = T.FLOOR;
+      }
+    }
+  }
+}
+
+/** 挖垂直走廊 */
+function carveVCorridor(y1, y2, x) {
+  const minY = Math.min(y1, y2);
+  const maxY = Math.max(y1, y2);
+  for (let y = minY; y <= maxY; y++) {
+    if (inBounds(x, y)) {
+      if (map[y][x] === T.WALL) {
+        map[y][x] = T.FLOOR;
+      }
+    }
+  }
+}
+
+// ============================================================
+//  地图生成
+// ============================================================
+
+function generateMap() {
+  // 1. 初始化全墙壁地图
+  map = [];
+  visible = [];
+  explored = [];
+  for (let y = 0; y < MAP_H; y++) {
+    map[y] = new Array(MAP_W).fill(T.WALL);
+    visible[y] = new Array(MAP_W).fill(false);
+    explored[y] = new Array(MAP_W).fill(false);
+  }
+
+  // 2. BSP 分割
+  const root = new BSPNode(1, 1, MAP_W - 2, MAP_H - 2);
+  root.split();
+
+  // 3. 在叶节点创建房间
+  root.createRooms();
+  rooms = root.getAllRooms();
+
+  // 4. 将房间刻入地图
+  for (const room of rooms) {
+    for (let y = room.y; y < room.y + room.h; y++) {
+      for (let x = room.x; x < room.x + room.w; x++) {
+        if (inBounds(x, y)) {
+          map[y][x] = T.FLOOR;
+        }
+      }
+    }
+  }
+
+  // 5. 连接走廊
+  connectRooms(root);
+
+  // 6. 在走廊入口处放置门（走廊与房间的交界处）
+  placeDoors();
+
+  // 7. 放置楼梯（在离玩家起始位置最远的房间）
+  const startRoom = rooms[0];
+  const endRoom   = rooms[rooms.length - 1];
+  stairPos.x = Math.floor(endRoom.x + endRoom.w / 2);
+  stairPos.y = Math.floor(endRoom.y + endRoom.h / 2);
+  map[stairPos.y][stairPos.x] = T.STAIR;
+
+  // 8. 放置玩家
+  player.x = Math.floor(startRoom.x + startRoom.w / 2);
+  player.y = Math.floor(startRoom.y + startRoom.h / 2);
+
+  // 9. 生成怪物
+  spawnMonsters();
+
+  // 10. 生成药水
+  spawnPotions();
+}
+
+/** 在走廊与房间的过渡处放置门 */
+function placeDoors() {
+  for (let y = 1; y < MAP_H - 1; y++) {
+    for (let x = 1; x < MAP_W - 1; x++) {
+      if (map[y][x] !== T.FLOOR) continue;
+      // 检查是否是走廊-房间过渡（水平或垂直方向一侧是墙）
+      const hWalls = (map[y][x-1] === T.WALL ? 1 : 0) + (map[y][x+1] === T.WALL ? 1 : 0);
+      const vWalls = (map[y-1][x] === T.WALL ? 1 : 0) + (map[y+1][x] === T.WALL ? 1 : 0);
+      // 门的条件：两侧是墙（水平通道或垂直通道），且前后是地面
+      if ((hWalls === 2 && vWalls === 0) || (vWalls === 2 && hWalls === 0)) {
+        // 只在一定概率放门（避免太多门）
+        if (Math.random() < 0.15) {
+          map[y][x] = T.DOOR;
+        }
+      }
+    }
+  }
+}
+
+/** 在房间内随机放置怪物 */
+function spawnMonsters() {
+  monsters = [];
+  // 每层怪物数量随层数增加
+  const count = Math.min(rooms.length * 2, 5 + level * 2);
+  // 可用的怪物类型随层数增加
+  const maxTier = Math.min(MONSTER_DEFS.length, 1 + Math.floor(level / 2));
+
+  for (let i = 0; i < count; i++) {
+    // 在随机房间的随机位置放置（跳过起始房间）
+    const room = rooms[randInt(1, rooms.length - 1)];
+    const mx = randInt(room.x + 1, room.x + room.w - 2);
+    const my = randInt(room.y + 1, room.y + room.h - 2);
+    if (map[my][mx] !== T.FLOOR) continue;
+    if (mx === player.x && my === player.y) continue;
+    if (monsters.some(m => m.x === mx && m.y === my)) continue;
+
+    const def = MONSTER_DEFS[randInt(0, maxTier - 1)];
+    // 怪物属性随层数增强
+    const scaleFactor = 1 + (level - 1) * 0.15;
+    monsters.push({
+      x: mx, y: my,
+      ch: def.ch,
+      name: def.name,
+      hp: Math.floor(def.hp * scaleFactor),
+      maxHp: Math.floor(def.hp * scaleFactor),
+      atk: Math.floor(def.atk * scaleFactor),
+      def: def.def,
+      exp: def.exp,
+    });
+  }
+}
+
+/** 在房间内随机放置药水 */
+function spawnPotions() {
+  potions = [];
+  const count = randInt(2, 4 + Math.floor(level / 2));
+  for (let i = 0; i < count; i++) {
+    const room = rooms[randInt(0, rooms.length - 1)];
+    const px = randInt(room.x + 1, room.x + room.w - 2);
+    const py = randInt(room.y + 1, room.y + room.h - 2);
+    if (map[py][px] !== T.FLOOR && map[py][px] !== T.DOOR) continue;
+    if (px === player.x && py === player.y) continue;
+    if (px === stairPos.x && py === stairPos.y) continue;
+    if (potions.some(p => p.x === px && p.y === py)) continue;
+    potions.push({ x: px, y: py, heal: randInt(15, 30) });
+  }
+}
+
+// ============================================================
+//  视野计算（简化 Raycasting）
+// ============================================================
+
+function computeFOV() {
+  // 重置视野
+  for (let y = 0; y < MAP_H; y++) {
+    for (let x = 0; x < MAP_W; x++) {
+      visible[y][x] = false;
+    }
+  }
+
+  // 从玩家位置向四周投射射线
+  // 使用 shadowcasting 的简化版本：对圆周上的每个点投射射线
+  const cx = player.x;
+  const cy = player.y;
+  visible[cy][cx] = true;
+  explored[cy][cx] = true;
+
+  const steps = 360; // 射线数量
+  for (let i = 0; i < steps; i++) {
+    const angle = (i / steps) * Math.PI * 2;
+    const dx = Math.cos(angle);
+    const dy = Math.sin(angle);
+
+    let rx = cx + 0.5;
+    let ry = cy + 0.5;
+
+    for (let d = 0; d < FOV_RADIUS; d++) {
+      rx += dx;
+      ry += dy;
+      const tx = Math.floor(rx);
+      const ty = Math.floor(ry);
+
+      if (!inBounds(tx, ty)) break;
+
+      visible[ty][tx] = true;
+      explored[ty][tx] = true;
+
+      // 墙壁会阻挡视线
+      if (map[ty][tx] === T.WALL) break;
+    }
+  }
+}
+
+// ============================================================
+//  游戏逻辑
+// ============================================================
+
+/** 尝试移动玩家 */
+function movePlayer(dx, dy) {
+  if (gameState !== 'playing') return;
+
+  const nx = player.x + dx;
+  const ny = player.y + dy;
+
+  if (!inBounds(nx, ny)) return;
+  if (map[ny][nx] === T.WALL) return;
+
+  // 检查怪物
+  const monsterIdx = monsters.findIndex(m => m.x === nx && m.y === ny);
+  if (monsterIdx !== -1) {
+    combat(monsterIdx);
+    // 怪物挡路，不移动（除非怪物死了）
+    if (monsters[monsterIdx] && monsters[monsterIdx].hp > 0) {
+      computeFOV();
+      render();
+      return;
+    }
+  }
+
+  // 移动
+  player.x = nx;
+  player.y = ny;
+
+  // 检查药水
+  const potionIdx = potions.findIndex(p => p.x === nx && p.y === ny);
+  if (potionIdx !== -1) {
+    const potion = potions[potionIdx];
+    const healed = Math.min(potion.heal, player.maxHp - player.hp);
+    player.hp += healed;
+    addLog(`拾取药水！恢复 ${healed} HP (${player.hp}/${player.maxHp})`, 'log-item');
+    potions.splice(potionIdx, 1);
+  }
+
+  // 检查楼梯
+  if (map[ny][nx] === T.STAIR) {
+    level++;
+    addLog(`========== 进入第 ${level} 层 ==========`, 'log-info');
+    generateMap();
+  }
+
+  computeFOV();
+  updateHud();
+  render();
+}
+
+/** 战斗系统 */
+function combat(monsterIdx) {
+  const m = monsters[monsterIdx];
+
+  // 玩家攻击怪物
+  const playerDmg = Math.max(1, player.atk - m.def + randInt(-2, 2));
+  m.hp -= playerDmg;
+  addLog(`你攻击了${m.name}，造成 ${playerDmg} 点伤害！`, 'log-combat');
+
+  if (m.hp <= 0) {
+    addLog(`${m.name}被击败了！`, 'log-combat');
+    kills++;
+    monsters.splice(monsterIdx, 1);
+    updateHud();
+    return;
+  }
+
+  // 怪物反击
+  const monsterDmg = Math.max(1, m.atk - player.def + randInt(-2, 2));
+  player.hp -= monsterDmg;
+  addLog(`${m.name}反击！你受到 ${monsterDmg} 点伤害 (HP: ${player.hp}/${player.maxHp})`, 'log-combat');
+
+  if (player.hp <= 0) {
+    player.hp = 0;
+    gameState = 'dead';
+    updateHud();
+    showDeathScreen();
+  }
+}
+
+/** 显示死亡界面 */
+function showDeathScreen() {
+  const deathScreen = document.getElementById('death-screen');
+  const deathStats  = document.getElementById('death-stats');
+  deathStats.innerHTML = `到达第 ${level} 层<br>击杀 ${kills} 个怪物`;
+  deathScreen.style.display = 'flex';
+}
+
+/** 开始新游戏 */
+function startGame() {
+  level = 1;
+  kills = 0;
+  player.hp = 100;
+  player.maxHp = 100;
+  player.atk = 8;
+  player.def = 3;
+  logEl.innerHTML = '';
+  gameState = 'playing';
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('death-screen').style.display = 'none';
+  generateMap();
+  computeFOV();
+  updateHud();
+  addLog('欢迎来到 BSP 地牢！找到楼梯 > 进入下一层。', 'log-info');
+  addLog(`你来到了第 ${level} 层...`, 'log-info');
+  render();
+}
+
+// ============================================================
+//  渲染
+// ============================================================
+
+function render() {
+  const w = canvas.width;
+  const h = canvas.height;
+
+  // 清空画布
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, w, h);
+
+  ctx.font = `${TILE_SIZE}px Courier New`;
+  ctx.textBaseline = 'top';
+  ctx.textAlign = 'center';
+
+  const halfTile = TILE_SIZE / 2;
+
+  for (let y = 0; y < MAP_H; y++) {
+    for (let x = 0; x < MAP_W; x++) {
+      const px = x * TILE_SIZE + halfTile;
+      const py = y * TILE_SIZE;
+
+      if (!explored[y][x]) {
+        // 未探索区域：全黑
+        continue;
+      }
+
+      const isVisible = visible[y][x];
+      const tile = map[y][x];
+
+      // 绘制地形
+      let ch = ' ';
+      let color = '#333';
+
+      switch (tile) {
+        case T.WALL:
+          ch = '#';
+          color = COLORS.wall;
+          break;
+        case T.FLOOR:
+          ch = '·';
+          color = COLORS.floor;
+          break;
+        case T.DOOR:
+          ch = '+';
+          color = COLORS.door;
+          break;
+        case T.STAIR:
+          ch = '>';
+          color = COLORS.stair;
+          break;
+      }
+
+      // 探索过但不在视野内的区域变暗
+      if (!isVisible) {
+        ctx.globalAlpha = 0.35;
+      }
+
+      ctx.fillStyle = color;
+      ctx.fillText(ch, px, py);
+
+      // 只在视野内绘制实体
+      if (isVisible) {
+        // 药水
+        const potion = potions.find(p => p.x === x && p.y === y);
+        if (potion) {
+          ctx.fillStyle = COLORS.potion;
+          ctx.fillText('!', px, py);
+        }
+
+        // 怪物
+        const monster = monsters.find(m => m.x === x && m.y === y);
+        if (monster) {
+          ctx.fillStyle = COLORS.monster;
+          ctx.fillText(monster.ch, px, py);
+        }
+      }
+
+      ctx.globalAlpha = 1.0;
+    }
+  }
+
+  // 绘制玩家（始终可见）
+  ctx.fillStyle = COLORS.player;
+  ctx.fillText('@', player.x * TILE_SIZE + halfTile, player.y * TILE_SIZE);
+}
+
+// ============================================================
+//  输入处理
+// ============================================================
+
+document.addEventListener('keydown', (e) => {
+  if (gameState === 'start') {
+    startGame();
+    return;
+  }
+
+  if (gameState === 'dead') {
+    startGame();
+    return;
+  }
+
+  // 移动方向
+  switch (e.key) {
+    case 'ArrowUp':    case 'w': case 'W': movePlayer(0, -1); break;
+    case 'ArrowDown':  case 's': case 'S': movePlayer(0,  1); break;
+    case 'ArrowLeft':  case 'a': case 'A': movePlayer(-1, 0); break;
+    case 'ArrowRight': case 'd': case 'D': movePlayer(1,  0); break;
+  }
+
+  e.preventDefault();
+});
+
+// ============================================================
+//  工具函数
+// ============================================================
+
+function inBounds(x, y) {
+  return x >= 0 && x < MAP_W && y >= 0 && y < MAP_H;
+}
+
+function randInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// ============================================================
+//  初始化渲染（显示开始界面）
+// ============================================================
+render();
+
+})();
+</script>
+</body>
+</html>

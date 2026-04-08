@@ -52,7 +52,7 @@ NO_REPLY
 
 ### 旧架构 vs 新架构
 
-![心跳架构对比](/images/2026-04-06-heartbeat-arch.png)
+![心跳架构对比](/images/2026-04-06-heartbeat-arch-hd.png)
 
 **旧架构（systemEvent → Main Session）：**
 1. 心跳 cron 发送 systemEvent 到主 session

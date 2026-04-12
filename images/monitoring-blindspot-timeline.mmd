@@ -1,0 +1,21 @@
+gantt
+    title 5 个 Cron 任务错误时间线（监控盲点）
+    dateFormat  YYYY-MM-DD
+    axisFormat  %m/%d
+    
+    section 错误产生期
+    任务 1 超时 :crit, e1, 2026-04-07, 1d
+    任务 2 超时 :crit, e2, 2026-04-07, 1d
+    任务 3 超时 :crit, e3, 2026-04-08, 1d
+    任务 4 超时 :crit, e4, 2026-04-09, 1d
+    任务 5 超时 :crit, e5, 2026-04-09, 1d
+    
+    section 监控空窗期
+    心跳检查 (4/7-4/11) :active, h1, 2026-04-07, 5d
+    
+    section 问题发现
+    心跳检查发现错误 :milestone, m1, 2026-04-12, 0d
+    回溯分析 :m2, after m1, 0d
+    
+    section 教训
+    改进措施上线 :milestone, m3, 2026-04-12, 0d

@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>地牢生成算法对比 - Roguelike</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a0a;
+    color: #ccc;
+    font-family: 'Courier New', monospace;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+  #header {
+    width: 100%;
+    max-width: 960px;
+    padding: 8px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #111;
+    border-bottom: 1px solid #333;
+  }
+  #header h1 {
+    font-size: 16px;
+    color: #f0c040;
+    letter-spacing: 2px;
+  }
+  #hud {
+    display: flex;
+    gap: 20px;
+    font-size: 14px;
+  }
+  .hud-item { color: #aaa; }
+  .hud-item span { font-weight: bold; }
+  .hp-val { color: #4f4; }
+  .level-val { color: #8af; }
+  .kill-val { color: #f88; }
+  #game-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+  canvas {
+    image-rendering: pixelated;
+    border: 1px solid #333;
+  }
+  #log {
+    width: 100%;
+    max-width: 960px;
+    height: 120px;
+    overflow-y: auto;
+    background: #111;
+    border-top: 1px solid #333;
+    padding: 6px 12px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .log-combat { color: #f88; }
+  .log-item { color: #4f4; }
+  .log-info { color: #8af; }
+  .log-system { color: #888; }
+  #start-screen {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.95);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  #start-screen h1 {
+    font-size: 32px;
+    color: #f0c040;
+    margin-bottom: 12px;
+    letter-spacing: 3px;
+  }
+  #start-screen .subtitle {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 24px;
+  }
+  #algorithm-select {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .algo-option {
+    background: #1a1a1a;
+    border: 2px solid #333;
+    border-radius: 6px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 420px;
+  }
+  .algo-option:hover {
+    border-color: #f0c040;
+    background: #222;
+  }
+  .algo-option.selected {
+    border-color: #f0c040;
+    background: #2a2a1a;
+  }
+  .algo-name {
+    font-size: 16px;
+    color: #f0c040;
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+  .algo-desc {
+    font-size: 12px;
+    color: #888;
+    line-height: 1.4;
+  }
+  #start-screen .controls {
+    font-size: 13px;
+    color: #aaa;
+    line-height: 2;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  #start-screen .start-btn {
+    font-size: 18px;
+    color: #f0c040;
+    animation: blink 1.2s infinite;
+    cursor: pointer;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  #death-screen {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(80,0,0,0.9);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  #death-screen h1 {
+    font-size: 48px;
+    color: #f44;
+    margin-bottom: 16px;
+  }
+  #death-stats {
+    font-size: 16px;
+    color: #ccc;
+    line-height: 2;
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  #death-screen .start-btn {
+    font-size: 18px;
+    color: #f0c040;
+    animation: blink 1.2s infinite;
+    cursor: pointer;
+  }
+  #algo-indicator {
+    position: fixed;
+    top: 60px;
+    right: 16px;
+    background: rgba(0,0,0,0.8);
+    border: 1px solid #333;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: #f0c040;
+    z-index: 50;
+  }
+</style>
+</head>
+<body>
+<div id="start-screen">
+  <h1>⚔ 地牢生成算法对比 ⚔</h1>
+  <div class="subtitle">— 体验不同算法生成的地牢风格 —</div>
+  
+  <div id="algorithm-select">
+    <div class="algo-option selected" data-algo="bsp">
+      <div class="algo-name">🏛 BSP (二叉空间分割)</div>
+      <div class="algo-desc">递归分割空间，生成规整的房间和走廊。经典 Roguelike 常用算法，结构清晰，易于导航。</div>
+    </div>
+    <div class="algo-option" data-algo="cellular">
+      <div class="algo-name">🦠 Cellular Automata (细胞自动机)</div>
+      <div class="algo-desc">模拟细胞生长，生成有机的洞穴结构。适合自然洞穴场景，但可能产生孤立区域。</div>
+    </div>
+    <div class="algo-option" data-algo="random-walk">
+      <div class="algo-name">🚶 Random Walk (随机漫步)</div>
+      <div class="algo-desc">酒鬼漫步式挖掘，生成蜿蜒的隧道和小型洞穴。结构简单，连通性好。</div>
+    </div>
+    <div class="algo-option" data-algo="drunkard">
+      <div class="algo-name">🍺 Drunkard's Walk (酒鬼漫步)</div>
+      <div class="algo-desc">改进的随机漫步，保证连通性。生成树状结构，适合迷宫式地牢。</div>
+    </div>
+  </div>
+  
+  <div class="controls">
+    WASD / 方向键 — 移动<br>
+    探索地牢，击败怪物，找到楼梯 &gt; 进入下一层<br>
+    拾取药水 ! 恢复生命值
+  </div>
+  <div class="start-btn" id="start-btn">[ 按 Enter 开始 ]</div>
+</div>
+
+<div id="death-screen">
+  <h1>☠ 你死了 ☠</h1>
+  <div id="death-stats"></div>
+  <div class="start-btn" id="restart-btn">[ 按 Enter 重新开始 ]</div>
+</div>
+
+<div id="header">
+  <h1>⚔ 地牢算法对比</h1>
+  <div id="hud">
+    <div class="hud-item">HP: <span class="hp-val" id="hp-display">100/100</span></div>
+    <div class="hud-item">层数：<span class="level-val" id="level-display">1</span></div>
+    <div class="hud-item">击杀：<span class="kill-val" id="kill-display">0</span></div>
+  </div>
+</div>
+
+<div id="algo-indicator">算法：<span id="current-algo">BSP</span></div>
+
+<div id="game-container">
+  <canvas id="game"></canvas>
+</div>
+
+<div id="log"></div>
+
+<script>
+// ============================================================
+//  地牢生成算法对比 - Roguelike Game
+//  支持：BSP / Cellular Automata / Random Walk / Drunkard's Walk
+//  作者：悠悠 (youyou-agent)
+//  日期：2026-04-13
+// ============================================================
+
+(() => {
+'use strict';
+
+// ---- 常量 ----
+const TILE_SIZE   = 16;
+const MAP_W       = 60;
+const MAP_H       = 40;
+const MIN_ROOM    = 5;
+const MAX_ROOM    = 15;
+const ROOM_PAD    = 1;
+const FOV_RADIUS  = 7;
+const FOV_RADIUS2 = FOV_RADIUS * FOV_RADIUS;
+
+// tile 类型
+const T = {
+  WALL:  0,
+  FLOOR: 1,
+  DOOR:  2,
+  STAIR: 3,
+};
+
+// 颜色方案
+const COLORS = {
+  wall:    '#666',
+  floor:   '#333',
+  door:    '#a86',
+  player:  '#f0c040',
+  monster: '#f44',
+  potion:  '#4f4',
+  stair:   '#48f',
+  fogSeen: 'rgba(0,0,0,0.6)',
+  fogHide: 'rgba(0,0,0,1)',
+};
+
+// 怪物定义
+const MONSTER_DEFS = [
+  { ch: 'G', name: '哥布林', hp: 12, atk: 3, def: 1, exp: 5  },
+  { ch: 'S', name: '骷髅',   hp: 18, atk: 5, def: 2, exp: 8  },
+  { ch: 'O', name: '兽人',   hp: 25, atk: 7, def: 3, exp: 12 },
+  { ch: 'D', name: '恶魔',   hp: 35, atk: 10, def: 4, exp: 20 },
+];
+
+// ---- Canvas 初始化 ----
+const canvas = document.getElementById('game');
+const ctx    = canvas.getContext('2d');
+
+function resizeCanvas() {
+  const maxW = window.innerWidth;
+  const maxH = window.innerHeight - 160;
+  const scaleX = Math.floor(maxW / (MAP_W * TILE_SIZE));
+  const scaleY = Math.floor(maxH / (MAP_H * TILE_SIZE));
+  const scale = Math.max(1, Math.min(scaleX, scaleY));
+  canvas.width  = MAP_W * TILE_SIZE;
+  canvas.height = MAP_H * TILE_SIZE;
+  canvas.style.width  = (canvas.width  * scale) + 'px';
+  canvas.style.height = (canvas.height * scale) + 'px';
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+// ---- 游戏状态 ----
+let selectedAlgorithm = 'bsp';
+let gameState = 'start';
+let map       = [];
+let visible   = [];
+let explored  = [];
+let monsters  = [];
+let potions   = [];
+let player    = { x: 0, y: 0, hp: 100, maxHp: 100, atk: 8, def: 3 };
+let stairPos  = { x: 0, y: 0 };
+let level     = 1;
+let kills     = 0;
+let rooms     = [];
+
+// ---- 日志系统 ----
+const logEl = document.getElementById('log');
+function addLog(msg, cls = 'log-system') {
+  const div = document.createElement('div');
+  div.className = cls;
+  div.textContent = msg;
+  logEl.appendChild(div);
+  logEl.scrollTop = logEl.scrollHeight;
+  while (logEl.children.length > 100) logEl.removeChild(logEl.firstChild);
+}
+
+// ---- HUD 更新 ----
+function updateHud() {
+  document.getElementById('hp-display').textContent = `${player.hp}/${player.maxHp}`;
+  document.getElementById('level-display').textContent = level;
+  document.getElementById('kill-display').textContent = kills;
+  document.getElementById('current-algo').textContent = selectedAlgorithm.toUpperCase();
+}
+
+// ============================================================
+//  算法 1: BSP (Binary Space Partitioning)
+// ============================================================
+
+class BSPNode {
+  constructor(x, y, w, h) {
+    this.x = x; this.y = y; this.w = w; this.h = h;
+    this.left = null; this.right = null;
+    this.room = null;
+  }
+
+  split() {
+    if (this.left || this.right) return;
+    let splitH;
+    if (this.w > this.h && this.w / this.h >= 1.25) {
+      splitH = false;
+    } else if (this.h > this.w && this.h / this.w >= 1.25) {
+      splitH = true;
+    } else {
+      splitH = Math.random() > 0.5;
+    }
+    const max = (splitH ? this.h : this.w) - MIN_ROOM;
+    if (max < MIN_ROOM) return;
+    const split = randInt(MIN_ROOM, max);
+    if (splitH) {
+      this.left  = new BSPNode(this.x, this.y, this.w, split);
+      this.right = new BSPNode(this.x, this.y + split, this.w, this.h - split);
+    } else {
+      this.left  = new BSPNode(this.x, this.y, split, this.h);
+      this.right = new BSPNode(this.x + split, this.y, this.w - split, this.h);
+    }
+    this.left.split();
+    this.right.split();
+  }
+
+  createRooms() {
+    if (this.left || this.right) {
+      if (this.left)  this.left.createRooms();
+      if (this.right) this.right.createRooms();
+    } else {
+      const roomW = randInt(Math.max(3, this.w - 2*ROOM_PAD - 2), this.w - 2*ROOM_PAD);
+      const roomH = randInt(Math.max(3, this.h - 2*ROOM_PAD - 2), this.h - 2*ROOM_PAD);
+      const roomX = this.x + randInt(ROOM_PAD, this.w - roomW - ROOM_PAD);
+      const roomY = this.y + randInt(ROOM_PAD, this.h - roomH - ROOM_PAD);
+      this.room = { x: roomX, y: roomY, w: roomW, h: roomH };
+    }
+  }
+
+  getRoom() {
+    if (this.room) return this.room;
+    if (this.left) { const r = this.left.getRoom(); if (r) return r; }
+    if (this.right) { const r = this.right.getRoom(); if (r) return r; }
+    return null;
+  }
+
+  getAllRooms() {
+    const result = [];
+    if (this.room) {
+      result.push(this.room);
+    } else {
+      if (this.left)  result.push(...this.left.getAllRooms());
+      if (this.right) result.push(...this.right.getAllRooms());
+    }
+    return result;
+  }
+}
+
+function connectRooms(node) {
+  if (!node.left || !node.right) return;
+  connectRooms(node.left);
+  connectRooms(node.right);
+  const roomA = node.left.getRoom();
+  const roomB = node.right.getRoom();
+  if (!roomA || !roomB) return;
+  const ax = Math.floor(roomA.x + roomA.w / 2);
+  const ay = Math.floor(roomA.y + roomA.h / 2);
+  const bx = Math.floor(roomB.x + roomB.w / 2);
+  const by = Math.floor(roomB.y + roomB.h / 2);
+  if (Math.random() > 0.5) {
+    carveHCorridor(ax, bx, ay);
+    carveVCorridor(ay, by, bx);
+  } else {
+    carveVCorridor(ay, by, ax);
+    carveHCorridor(ax, bx, by);
+  }
+}
+
+function carveHCorridor(x1, x2, y) {
+  const minX = Math.min(x1, x2), maxX = Math.max(x1, x2);
+  for (let x = minX; x <= maxX; x++) {
+    if (inBounds(x, y) && map[y][x] === T.WALL) map[y][x] = T.FLOOR;
+  }
+}
+
+function carveVCorridor(y1, y2, x) {
+  const minY = Math.min(y1, y2), maxY = Math.max(y1, y2);
+  for (let y = minY; y <= maxY; y++) {
+    if (inBounds(x, y) && map[y][x] === T.WALL) map[y][x] = T.FLOOR;
+  }
+}
+
+function generateBSP() {
+  for (let y = 0; y < MAP_H; y++) {
+    map[y] = new Array(MAP_W).fill(T.WALL);
+    visible[y] = new Array(MAP_W).fill(false);
+    explored[y] = new Array(MAP_W).fill(false);
+  }
+  const root = new BSPNode(1, 1, MAP_W - 2, MAP_H - 2);
+  root.split();
+  root.createRooms();
+  rooms = root.getAllRooms();
+  for (const room of rooms) {
+    for (let y = room.y; y < room.y + room.h; y++) {
+      for (let x = room.x; x < room.x + room.w; x++) {
+        if (inBounds(x, y)) map[y][x] = T.FLOOR;
+      }
+    }
+  }
+  connectRooms(root);
+  placeDoors();
+  const startRoom = rooms[0];
+  const endRoom = rooms[rooms.length - 1];
+  stairPos.x = Math.floor(endRoom.x + endRoom.w / 2);
+  stairPos.y = Math.floor(endRoom.y + endRoom.h / 2);
+  map[stairPos.y][stairPos.x] = T.STAIR;
+  player.x = Math.floor(startRoom.x + startRoom.w / 2);
+  player.y = Math.floor(startRoom.y + startRoom.h / 2);
+}
+
+// ============================================================
+//  算法 2: Cellular Automata (细胞自动机)
+// ============================================================
+
+function generateCellular() {
+  for (let y = 0; y < MAP_H; y++) {
+    map[y] = new Array(MAP_W).fill(T.WALL);
+    visible[y] = new Array(MAP_W).fill(false);
+    explored[y] = new Array(MAP_W).fill(false);
+  }
+  
+  // 随机初始化：45% 概率为地面
+  for (let y = 1; y < MAP_H - 1; y++) {
+    for (let x = 1; x < MAP_W - 1; x++) {
+      map[y][x] = Math.random() < 0.45 ? T.FLOOR : T.WALL;
+    }
+  }
+  
+  // 迭代 5 次细胞自动机规则
+  for (let i = 0; i < 5; i++) {
+    const newMap = map.map(row => [...row]);
+    for (let y = 1; y < MAP_H - 1; y++) {
+      for (let x = 1; x < MAP_W - 1; x++) {
+        let wallCount = 0;
+        for (let dy = -1; dy <= 1; dy++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            if (map[y+dy][x+dx] === T.WALL) wallCount++;
+          }
+        }
+        // 如果周围墙 >= 5，变成墙；否则变成地面
+        newMap[y][x] = wallCount >= 5 ? T.WALL : T.FLOOR;
+      }
+    }
+    map = newMap;
+  }
+  
+  // 找到最大的连通区域作为可玩区域
+  floodFillLargestCave();
+  
+  // 放置楼梯和玩家（在区域两端）
+  const floorTiles = [];
+  for (let y = 1; y < MAP_H - 1; y++) {
+    for (let x = 1; x < MAP_W - 1; x++) {
+      if (map[y][x] === T.FLOOR) floorTiles.push({x, y});
+    }
+  }
+  if (floorTiles.length > 0) {
+    player.x = floorTiles[0].x;
+    player.y = floorTiles[0].y;
+    const farTile = floorTiles.reduce((far, t) => {
+      const dist = (t.x - player.x) ** 2 + (t.y - player.y) ** 2;
+      const farDist = (far.x - player.x) ** 2 + (far.y - player.y) ** 2;
+      return dist > farDist ? t : far;
+    }, floorTiles[0]);
+    stairPos.x = farTile.x;
+    stairPos.y = farTile.y;
+    map[stairPos.y][stairPos.x] = T.STAIR;
+  }
+  rooms = []; // Cellular 没有房间概念
+}
+
+function floodFillLargestCave() {
+  const visited = new Set();
+  let largestSize = 0;
+  let largestStart = null;
+  
+  for (let y = 1; y < MAP_H - 1; y++) {
+    for (let x = 1; x < MAP_W - 1; x++) {
+      if (map[y][x] === T.FLOOR && !visited.has(`${x},${y}`)) {
+        const cave = floodFill(x, y, visited);
+        if (cave.length > largestSize) {
+          largestSize = cave.length;
+          largestStart = cave[0];
+        }
+      }
+    }
+  }
+  
+  // 填充小洞穴（只保留最大的）
+  if (largestStart) {
+    const finalVisited = new Set();
+    floodFill(largestStart.x, largestStart.y, finalVisited);
+    for (let y = 1; y < MAP_H - 1; y++) {
+      for (let x = 1; x < MAP_W - 1; x++) {
+        if (map[y][x] === T.FLOOR && !finalVisited.has(`${x},${y}`)) {
+          map[y][x] = T.WALL;
+        }
+      }
+    }
+  }
+}
+
+function floodFill(startX, startY, visited) {
+  const stack = [{x: startX, y: startY}];
+  const result = [];
+  while (stack.length > 0) {
+    const {x, y} = stack.pop();
+    const key = `${x},${y}`;
+    if (visited.has(key)) continue;
+    visited.add(key);
+    result.push({x, y});
+    if (map[y][x-1] === T.FLOOR) stack.push({x: x-1, y});
+    if (map[y][x+1] === T.FLOOR) stack.push({x: x+1, y});
+    if (map[y-1][x] === T.FLOOR) stack.push({x, y: y-1});
+    if (map[y+1][x] === T.FLOOR) stack.push({x, y: y+1});
+  }
+  return result;
+}
+
+// ============================================================
+//  算法 3: Random Walk (随机漫步)
+// ============================================================
+
+function generateRandomWalk() {
+  for (let y = 0; y < MAP_H; y++) {
+    map[y] = new Array(MAP_W).fill(T.WALL);
+    visible[y] = new Array(MAP_W).fill(false);
+    explored[y] = new Array(MAP_W).fill(false);
+  }
+  
+  // 从中心开始随机漫步
+  let x = Math.floor(MAP_W / 2);
+  let y = Math.floor(MAP_H / 2);
+  const playerStart = {x, y};
+  
+  const steps = Math.floor(MAP_W * MAP_H * 0.4); // 总步数
+  const caveSize = 3; // 洞穴半径
+  
+  for (let i = 0; i < steps; i++) {
+    // 挖洞（圆形区域）
+    for (let dy = -caveSize; dy <= caveSize; dy++) {
+      for (let dx = -caveSize; dx <= caveSize; dx++) {
+        if (dx*dx + dy*dy <= caveSize*caveSize) {
+          const nx = x + dx, ny = y + dy;
+          if (inBounds(nx, ny)) map[ny][nx] = T.FLOOR;
+        }
+      }
+    }
+    
+    // 随机移动
+    const dir = randInt(0, 3);
+    if (dir === 0 && y > 2) y--;
+    else if (dir === 1 && y < MAP_H - 3) y++;
+    else if (dir === 2 && x > 2) x--;
+    else if (dir === 3 && x < MAP_W - 3) x++;
+  }
+  
+  // 放置玩家和楼梯
+  player.x = playerStart.x;
+  player.y = playerStart.y;
+  
+  // 找到离玩家最远的地面作为楼梯
+  let farDist = 0;
+  for (let y = 1; y < MAP_H - 1; y++) {
+    for (let x = 1; x < MAP_W - 1; x++) {
+      if (map[y][x] === T.FLOOR) {
+        const dist = (x - player.x) ** 2 + (y - player.y) ** 2;
+        if (dist > farDist) {
+          farDist = dist;
+          stairPos.x = x;
+          stairPos.y = y;
+        }
+      }
+    }
+  }
+  map[stairPos.y][stairPos.x] = T.STAIR;
+  rooms = [];
+}
+
+// ============================================================
+//  算法 4: Drunkard's Walk (酒鬼漫步)
+// ============================================================
+
+function generateDrunkard() {
+  for (let y = 0; y < MAP_H; y++) {
+    map[y] = new Array(MAP_W).fill(T.WALL);
+    visible[y] = new Array(MAP_W).fill(false);
+    explored[y] = new Array(MAP_W).fill(false);
+  }
+  
+  // 从中心开始，保证连通性
+  let x = Math.floor(MAP_W / 2);
+  let y = Math.floor(MAP_H / 2);
+  const playerStart = {x, y};
+  const floorCount = Math.floor(MAP_W * MAP_H * 0.35); // 35% 地面
+  
+  const visited = new Set();
+  visited.add(`${x},${y}`);
+  map[y][x] = T.FLOOR;
+  
+  let carved = 1;
+  while (carved < floorCount) {
+    // 从已挖掘的地面中随机选一个点作为起点
+    const floorTiles = [];
+    for (let cy = 1; cy < MAP_H - 1; cy++) {
+      for (let cx = 1; cx < MAP_W - 1; cx++) {
+        if (map[cy][cx] === T.FLOOR) floorTiles.push({x: cx, y: cy});
+      }
+    }
+    const start = floorTiles[randInt(0, floorTiles.length - 1)];
+    x = start.x;
+    y = start.y;
+    
+    // 随机漫步一段距离
+    const walkLength = randInt(10, 30);
+    for (let i = 0; i < walkLength && carved < floorCount; i++) {
+      const dir = randInt(0, 3);
+      if (dir === 0 && y > 2) y--;
+      else if (dir === 1 && y < MAP_H - 3) y++;
+      else if (dir === 2 && x > 2) x--;
+      else if (dir === 3 && x < MAP_W - 3) x++;
+      
+      const key = `${x},${y}`;
+      if (!visited.has(key) && inBounds(x, y)) {
+        visited.add(key);
+        map[y][x] = T.FLOOR;
+        carved++;
+      }
+    }
+  }
+  
+  player.x = playerStart.x;
+  player.y = playerStart.y;
+  
+  // 找到最远点作为楼梯
+  let farDist = 0;
+  for (let y = 1; y < MAP_H - 1; y++) {
+    for (let x = 1; x < MAP_W - 1; x++) {
+      if (map[y][x] === T.FLOOR) {
+        const dist = (x - player.x) ** 2 + (y - player.y) ** 2;
+        if (dist > farDist) {
+          farDist = dist;
+          stairPos.x = x;
+          stairPos.y = y;
+        }
+      }
+    }
+  }
+  map[stairPos.y][stairPos.x] = T.STAIR;
+  rooms = [];
+}
+
+// ============================================================
+//  通用地图生成
+// ============================================================
+
+function generateMap() {
+  monsters = [];
+  potions = [];
+  
+  // 根据选择的算法生成地图
+  switch (selectedAlgorithm) {
+    case 'bsp':         generateBSP(); break;
+    case 'cellular':    generateCellular(); break;
+    case 'random-walk': generateRandomWalk(); break;
+    case 'drunkard':    generateDrunkard(); break;
+  }
+  
+  spawnMonsters();
+  spawnPotions();
+}
+
+function placeDoors() {
+  if (selectedAlgorithm !== 'bsp') return;
+  for (let y = 1; y < MAP_H - 1; y++) {
+    for (let x = 1; x < MAP_W - 1; x++) {
+      if (map[y][x] !== T.FLOOR) continue;
+      const hWalls = (map[y][x-1] === T.WALL ? 1 : 0) + (map[y][x+1] === T.WALL ? 1 : 0);
+      const vWalls = (map[y-1][x] === T.WALL ? 1 : 0) + (map[y+1][x] === T.WALL ? 1 : 0);
+      if ((hWalls === 2 && vWalls === 0) || (vWalls === 2 && hWalls === 0)) {
+        if (Math.random() < 0.15) map[y][x] = T.DOOR;
+      }
+    }
+  }
+}
+
+function spawnMonsters() {
+  const count = Math.min(10, 5 + level * 2);
+  const maxTier = Math.min(MONSTER_DEFS.length, 1 + Math.floor(level / 2));
+  const floorTiles = [];
+  for (let y = 1; y < MAP_H - 1; y++) {
+    for (let x = 1; x < MAP_W - 1; x++) {
+      if (map[y][x] === T.FLOOR && !(x === player.x && y === player.y)) {
+        floorTiles.push({x, y});
+      }
+    }
+  }
+  for (let i = 0; i < count; i++) {
+    if (floorTiles.length === 0) break;
+    const idx = randInt(0, floorTiles.length - 1);
+    const {x, y} = floorTiles.splice(idx, 1)[0];
+    const def = MONSTER_DEFS[randInt(0, maxTier - 1)];
+    const scaleFactor = 1 + (level - 1) * 0.15;
+    monsters.push({
+      x, y, ch: def.ch, name: def.name,
+      hp: Math.floor(def.hp * scaleFactor),
+      maxHp: Math.floor(def.hp * scaleFactor),
+      atk: Math.floor(def.atk * scaleFactor),
+      def: def.def, exp: def.exp,
+    });
+  }
+}
+
+function spawnPotions() {
+  const count = randInt(2, 4 + Math.floor(level / 2));
+  const floorTiles = [];
+  for (let y = 1; y < MAP_H - 1; y++) {
+    for (let x = 1; x < MAP_W - 1; x++) {
+      if (map[y][x] === T.FLOOR && !(x === player.x && y === player.y) && !(x === stairPos.x && y === stairPos.y)) {
+        floorTiles.push({x, y});
+      }
+    }
+  }
+  for (let i = 0; i < count; i++) {
+    if (floorTiles.length === 0) break;
+    const idx = randInt(0, floorTiles.length - 1);
+    const {x, y} = floorTiles.splice(idx, 1)[0];
+    potions.push({ x, y, heal: randInt(15, 30) });
+  }
+}
+
+// ============================================================
+//  视野计算
+// ============================================================
+
+function computeFOV() {
+  for (let y = 0; y < MAP_H; y++) {
+    for (let x = 0; x < MAP_W; x++) visible[y][x] = false;
+  }
+  const cx = player.x, cy = player.y;
+  visible[cy][cx] = true;
+  explored[cy][cx] = true;
+  const steps = 360;
+  for (let i = 0; i < steps; i++) {
+    const angle = (i / steps) * Math.PI * 2;
+    const dx = Math.cos(angle), dy = Math.sin(angle);
+    let rx = cx + 0.5, ry = cy + 0.5;
+    for (let d = 0; d < FOV_RADIUS; d++) {
+      rx += dx; ry += dy;
+      const tx = Math.floor(rx), ty = Math.floor(ry);
+      if (!inBounds(tx, ty)) break;
+      visible[ty][tx] = true;
+      explored[ty][tx] = true;
+      if (map[ty][tx] === T.WALL) break;
+    }
+  }
+}
+
+// ============================================================
+//  游戏逻辑
+// ============================================================
+
+function movePlayer(dx, dy) {
+  if (gameState !== 'playing') return;
+  const nx = player.x + dx, ny = player.y + dy;
+  if (!inBounds(nx, ny)) return;
+  if (map[ny][nx] === T.WALL) return;
+  
+  const monsterIdx = monsters.findIndex(m => m.x === nx && m.y === ny);
+  if (monsterIdx !== -1) {
+    combat(monsterIdx);
+    if (monsters[monsterIdx] && monsters[monsterIdx].hp > 0) {
+      computeFOV(); render(); return;
+    }
+  }
+  
+  player.x = nx; player.y = ny;
+  
+  const potionIdx = potions.findIndex(p => p.x === nx && p.y === ny);
+  if (potionIdx !== -1) {
+    const potion = potions[potionIdx];
+    const healed = Math.min(potion.heal, player.maxHp - player.hp);
+    player.hp += healed;
+    addLog(`拾取药水！恢复 ${healed} HP (${player.hp}/${player.maxHp})`, 'log-item');
+    potions.splice(potionIdx, 1);
+  }
+  
+  if (map[ny][nx] === T.STAIR) {
+    level++;
+    addLog(`========== 进入第 ${level} 层 ==========`, 'log-info');
+    addLog(`当前算法：${selectedAlgorithm.toUpperCase()}`, 'log-system');
+    generateMap();
+  }
+  
+  computeFOV(); updateHud(); render();
+}
+
+function combat(monsterIdx) {
+  const m = monsters[monsterIdx];
+  const playerDmg = Math.max(1, player.atk - m.def + randInt(-2, 2));
+  m.hp -= playerDmg;
+  addLog(`你攻击了${m.name}，造成 ${playerDmg} 点伤害！`, 'log-combat');
+  if (m.hp <= 0) {
+    addLog(`${m.name}被击败了！`, 'log-combat');
+    kills++;
+    monsters.splice(monsterIdx, 1);
+    updateHud();
+    return;
+  }
+  const monsterDmg = Math.max(1, m.atk - player.def + randInt(-2, 2));
+  player.hp -= monsterDmg;
+  addLog(`${m.name}反击！你受到 ${monsterDmg} 点伤害 (HP: ${player.hp}/${player.maxHp})`, 'log-combat');
+  if (player.hp <= 0) {
+    player.hp = 0;
+    gameState = 'dead';
+    updateHud();
+    showDeathScreen();
+  }
+}
+
+function showDeathScreen() {
+  const deathScreen = document.getElementById('death-screen');
+  const deathStats  = document.getElementById('death-stats');
+  deathStats.innerHTML = `算法：${selectedAlgorithm.toUpperCase()}<br>到达第 ${level} 层<br>击杀 ${kills} 个怪物`;
+  deathScreen.style.display = 'flex';
+}
+
+function startGame() {
+  level = 1; kills = 0;
+  player.hp = 100; player.maxHp = 100;
+  player.atk = 8; player.def = 3;
+  logEl.innerHTML = '';
+  gameState = 'playing';
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('death-screen').style.display = 'none';
+  generateMap();
+  computeFOV();
+  updateHud();
+  addLog(`欢迎来到地牢！当前算法：${selectedAlgorithm.toUpperCase()}`, 'log-info');
+  addLog(`你来到了第 ${level} 层...`, 'log-info');
+  render();
+}
+
+// ============================================================
+//  渲染
+// ============================================================
+
+function render() {
+  const w = canvas.width, h = canvas.height;
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, w, h);
+  ctx.font = `${TILE_SIZE}px Courier New`;
+  ctx.textBaseline = 'top';
+  ctx.textAlign = 'center';
+  const halfTile = TILE_SIZE / 2;
+  
+  for (let y = 0; y < MAP_H; y++) {
+    for (let x = 0; x < MAP_W; x++) {
+      const px = x * TILE_SIZE + halfTile;
+      const py = y * TILE_SIZE;
+      if (!explored[y][x]) continue;
+      const isVisible = visible[y][x];
+      const tile = map[y][x];
+      let ch = ' ', color = '#333';
+      switch (tile) {
+        case T.WALL:  ch = '#'; color = COLORS.wall; break;
+        case T.FLOOR: ch = '·'; color = COLORS.floor; break;
+        case T.DOOR:  ch = '+'; color = COLORS.door; break;
+        case T.STAIR: ch = '>'; color = COLORS.stair; break;
+      }
+      if (!isVisible) ctx.globalAlpha = 0.35;
+      ctx.fillStyle = color;
+      ctx.fillText(ch, px, py);
+      if (isVisible) {
+        const potion = potions.find(p => p.x === x && p.y === y);
+        if (potion) { ctx.fillStyle = COLORS.potion; ctx.fillText('!', px, py); }
+        const monster = monsters.find(m => m.x === x && m.y === y);
+        if (monster) { ctx.fillStyle = COLORS.monster; ctx.fillText(monster.ch, px, py); }
+      }
+      ctx.globalAlpha = 1.0;
+    }
+  }
+  ctx.fillStyle = COLORS.player;
+  ctx.fillText('@', player.x * TILE_SIZE + halfTile, player.y * TILE_SIZE);
+}
+
+// ============================================================
+//  输入处理
+// ============================================================
+
+// 算法选择
+document.querySelectorAll('.algo-option').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.algo-option').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedAlgorithm = el.dataset.algo;
+  });
+});
+
+// 开始按钮
+document.getElementById('start-btn').addEventListener('click', startGame);
+document.getElementById('restart-btn').addEventListener('click', startGame);
+
+document.addEventListener('keydown', (e) => {
+  if (gameState === 'start') {
+    if (e.key === 'Enter') startGame();
+    return;
+  }
+  if (gameState === 'dead') {
+    if (e.key === 'Enter') startGame();
+    return;
+  }
+  switch (e.key) {
+    case 'ArrowUp':    case 'w': case 'W': movePlayer(0, -1); break;
+    case 'ArrowDown':  case 's': case 'S': movePlayer(0,  1); break;
+    case 'ArrowLeft':  case 'a': case 'A': movePlayer(-1, 0); break;
+    case 'ArrowRight': case 'd': case 'D': movePlayer(1,  0); break;
+  }
+  e.preventDefault();
+});
+
+// ============================================================
+//  工具函数
+// ============================================================
+
+function inBounds(x, y) { return x >= 0 && x < MAP_W && y >= 0 && y < MAP_H; }
+function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+render();
+
+})();
+</script>
+</body>
+</html>

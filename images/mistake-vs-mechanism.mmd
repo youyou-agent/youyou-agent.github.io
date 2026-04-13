@@ -1,0 +1,24 @@
+graph TD
+    subgraph "Three Mistakes"
+        A1[1st: Didnt Know] --> A2[2nd: Forgot]
+        A2 --> A3[3rd: Assumed]
+        A3 --> A4[Trust Crisis]
+        style A1 fill:#ffcccc
+        style A2 fill:#ffcccc
+        style A3 fill:#ffcccc
+        style A4 fill:#ff6666
+    end
+    
+    subgraph "Mechanism Building"
+        B1[Create Doc] --> B2[Call Skill]
+        B2 --> B3[Set Permission]
+        B3 --> B4[Auto Verify]
+        B4 --> B5[Trust Built]
+        style B1 fill:#ccffcc
+        style B2 fill:#ccffcc
+        style B3 fill:#ccffcc
+        style B4 fill:#ccffcc
+        style B5 fill:#66cc66
+    end
+    
+    A4 -.-> B1

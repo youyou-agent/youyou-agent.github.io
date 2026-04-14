@@ -77,6 +77,8 @@
     align-items: center;
     justify-content: center;
     z-index: 100;
+    overflow-y: auto;
+    padding: 20px 0;
   }
   #start-screen h1 {
     font-size: 32px;
@@ -87,8 +89,38 @@
   #start-screen .subtitle {
     font-size: 14px;
     color: #888;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
   }
+
+  /* ---- 模式切换 ---- */
+  #mode-toggle {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    background: #1a1a1a;
+    border-radius: 8px;
+    padding: 4px;
+    border: 1px solid #333;
+  }
+  .mode-btn {
+    background: transparent;
+    border: none;
+    color: #888;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    padding: 8px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .mode-btn:hover { color: #ccc; }
+  .mode-btn.active {
+    background: #2a2a1a;
+    color: #f0c040;
+    font-weight: bold;
+  }
+
+  /* ---- 算法选择 ---- */
   #algorithm-select {
     display: flex;
     flex-direction: column;
@@ -102,7 +134,8 @@
     padding: 12px 16px;
     cursor: pointer;
     transition: all 0.2s;
-    width: 420px;
+    width: 480px;
+    max-width: 90vw;
   }
   .algo-option:hover {
     border-color: #f0c040;
@@ -111,6 +144,11 @@
   .algo-option.selected {
     border-color: #f0c040;
     background: #2a2a1a;
+  }
+  .algo-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
   .algo-name {
     font-size: 16px;
@@ -122,6 +160,72 @@
     font-size: 12px;
     color: #888;
     line-height: 1.4;
+  }
+  .algo-info-btn {
+    background: #333;
+    border: 1px solid #555;
+    color: #f0c040;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    font-weight: bold;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+  .algo-info-btn:hover {
+    background: #f0c040;
+    color: #000;
+    border-color: #f0c040;
+  }
+  .algo-info-btn.open {
+    background: #f0c040;
+    color: #000;
+    border-color: #f0c040;
+  }
+
+  /* ---- 算法详情面板 ---- */
+  .algo-detail {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+    padding: 0 0;
+  }
+  .algo-detail.show {
+    max-height: 400px;
+    padding: 10px 0 0 0;
+  }
+  .algo-principle {
+    font-size: 12px;
+    color: #bbb;
+    line-height: 1.6;
+    margin-bottom: 8px;
+    border-top: 1px solid #333;
+    padding-top: 10px;
+  }
+  .algo-ascii {
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 11px;
+    line-height: 1.3;
+    color: #8af;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  /* ---- 游戏模式面板 ---- */
+  #game-mode-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
   #start-screen .controls {
     font-size: 13px;
@@ -140,6 +244,73 @@
     0%, 100% { opacity: 1; }
     50% { opacity: 0.3; }
   }
+
+  /* ---- 地图对比面板 ---- */
+  #compare-mode-panel {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 980px;
+    padding: 0 16px;
+  }
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+    margin-bottom: 16px;
+  }
+  .compare-cell {
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 10px;
+    text-align: center;
+  }
+  .compare-cell h3 {
+    font-size: 14px;
+    color: #f0c040;
+    margin-bottom: 8px;
+    font-weight: bold;
+  }
+  .compare-cell canvas {
+    width: 100%;
+    image-rendering: pixelated;
+    border: 1px solid #222;
+    border-radius: 4px;
+  }
+  .compare-controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 16px;
+  }
+  #seed-display {
+    font-size: 13px;
+    color: #888;
+  }
+  #seed-display span {
+    color: #8af;
+    font-weight: bold;
+  }
+  .compare-btn {
+    background: #2a2a1a;
+    border: 2px solid #f0c040;
+    color: #f0c040;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    padding: 8px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .compare-btn:hover {
+    background: #f0c040;
+    color: #000;
+  }
+
+  /* ---- 其他 ---- */
   #death-screen {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -180,38 +351,144 @@
     color: #f0c040;
     z-index: 50;
   }
+
+  @media (max-width: 700px) {
+    .compare-grid { grid-template-columns: 1fr; }
+    .algo-option { width: 95vw; }
+  }
 </style>
 </head>
 <body>
 <div id="start-screen">
   <h1>⚔ 地牢生成算法对比 ⚔</h1>
   <div class="subtitle">— 体验不同算法生成的地牢风格 —</div>
-  
-  <div id="algorithm-select">
-    <div class="algo-option selected" data-algo="bsp">
-      <div class="algo-name">🏛 BSP (二叉空间分割)</div>
-      <div class="algo-desc">递归分割空间，生成规整的房间和走廊。经典 Roguelike 常用算法，结构清晰，易于导航。</div>
+
+  <div id="mode-toggle">
+    <button class="mode-btn active" data-mode="game">⚔ 游戏模式</button>
+    <button class="mode-btn" data-mode="compare">🗺 地图对比</button>
+  </div>
+
+  <!-- ======== 游戏模式面板 ======== -->
+  <div id="game-mode-panel">
+    <div id="algorithm-select">
+
+      <div class="algo-option selected" data-algo="bsp">
+        <div class="algo-header">
+          <div class="algo-name">🏛 BSP (二叉空间分割)</div>
+          <button class="algo-info-btn" onclick="event.stopPropagation();toggleInfo(this)" title="查看原理">?</button>
+        </div>
+        <div class="algo-desc">递归分割空间，生成规整的房间和走廊。经典 Roguelike 常用算法，结构清晰，易于导航。</div>
+        <div class="algo-detail">
+          <div class="algo-principle">
+            <b>原理：</b>递归二叉空间分割，先把大空间不断对半分成小区域，再在每个小区域内随机放置一个房间，最后用走廊连接相邻房间。生成<b>规整、结构化</b>的地牢，房间方方正正。
+          </div>
+          <div class="algo-ascii">┌───────────────┐    ┌───────┬───────┐    ┌──┐    ┌──┐
+│               │    │       │       │    │R1│····│R2│
+│   整块空间    │ →  │   A   │   B   │ →  └──┘    └──┘
+│               │    │       │       │       :       :
+│               │    ├───────┼───────┤    ┌──┐    ┌──┐
+│               │    │   C   │   D   │    │R3│····│R4│
+└───────────────┘    └───────┴───────┘    └──┘    └──┘
+    原始空间          递归分割成4块        每块放房间+走廊连接</div>
+        </div>
+      </div>
+
+      <div class="algo-option" data-algo="cellular">
+        <div class="algo-header">
+          <div class="algo-name">🦠 Cellular Automata (细胞自动机)</div>
+          <button class="algo-info-btn" onclick="event.stopPropagation();toggleInfo(this)" title="查看原理">?</button>
+        </div>
+        <div class="algo-desc">模拟细胞生长，生成有机的洞穴结构。适合自然洞穴场景，但可能产生孤立区域。</div>
+        <div class="algo-detail">
+          <div class="algo-principle">
+            <b>原理：</b>先随机填充地图（约45%为地面），然后迭代5次平滑规则（类似<b>生命游戏</b>）：统计每格周围8邻居中的墙数量，<b>墙邻居≥5则变墙，否则变地面</b>。最终保留最大连通区域。生成<b>自然洞穴</b>风格。
+          </div>
+          <div class="algo-ascii">随机填充(45%地面):     迭代5次平滑后:
+ ##.#.##.#.##           ##########..
+ .##..#.##..            ###.....###.
+ #.#.##..#.#     →      ##......####
+ .##.#.#.#..            ###....#####
+ ##..##.#.##            ####..######
+ 规则: 周围≥5墙→变墙  &lt;5墙→变地面</div>
+        </div>
+      </div>
+
+      <div class="algo-option" data-algo="random-walk">
+        <div class="algo-header">
+          <div class="algo-name">🚶 Random Walk (随机漫步)</div>
+          <button class="algo-info-btn" onclick="event.stopPropagation();toggleInfo(this)" title="查看原理">?</button>
+        </div>
+        <div class="algo-desc">酒鬼漫步式挖掘，生成蜿蜒的隧道和小型洞穴。结构简单，连通性好。</div>
+        <div class="algo-detail">
+          <div class="algo-principle">
+            <b>原理：</b>从地图<b>中心</b>出发，每步随机选一个方向（上下左右），在当前位置挖出一小片圆形区域。重复直到挖掘面积达到40%。因为从一个点出发，保证<b>天然连通</b>。生成<b>蜿蜒的洞穴</b>，控制挖掘比例平衡开阔度。
+          </div>
+          <div class="algo-ascii">       ·····
+      ·     ····
+  ····[起点]·   ·
+  ·    ·····    ·
+  ···       ····
+    ·········
+  从中心出发，随机方向挖掘圆形区域
+  路径天然连通，形成蜿蜒洞穴</div>
+        </div>
+      </div>
+
+      <div class="algo-option" data-algo="drunkard">
+        <div class="algo-header">
+          <div class="algo-name">🍺 Drunkard's Walk (酒鬼漫步)</div>
+          <button class="algo-info-btn" onclick="event.stopPropagation();toggleInfo(this)" title="查看原理">?</button>
+        </div>
+        <div class="algo-desc">改进的随机漫步，保证连通性。生成树状结构，适合迷宫式地牢。</div>
+        <div class="algo-detail">
+          <div class="algo-principle">
+            <b>原理：</b>多个"酒鬼"从<b>已挖掘区域中随机选点</b>出发，各自随机行走10-30步，经过的格子变为地面。因为每个酒鬼从已有地面出发，保证<b>连通性</b>。比 Random Walk 更<b>分散、更不规则</b>，生成迷宫般的蜿蜒通道。
+          </div>
+          <div class="algo-ascii">  ··       ·····
+  ·  ···   ·   ·
+  ····  ·· ··  ·
+    ·    ·····  ·
+    ··       ····
+  多个"酒鬼"从已挖区域出发
+  各自漫步，比Random Walk更分散</div>
+        </div>
+      </div>
+
     </div>
-    <div class="algo-option" data-algo="cellular">
-      <div class="algo-name">🦠 Cellular Automata (细胞自动机)</div>
-      <div class="algo-desc">模拟细胞生长，生成有机的洞穴结构。适合自然洞穴场景，但可能产生孤立区域。</div>
+
+    <div class="controls">
+      WASD / 方向键 — 移动<br>
+      探索地牢，击败怪物，找到楼梯 &gt; 进入下一层<br>
+      拾取药水 ! 恢复生命值
     </div>
-    <div class="algo-option" data-algo="random-walk">
-      <div class="algo-name">🚶 Random Walk (随机漫步)</div>
-      <div class="algo-desc">酒鬼漫步式挖掘，生成蜿蜒的隧道和小型洞穴。结构简单，连通性好。</div>
+    <div class="start-btn" id="start-btn">[ 按 Enter 开始 ]</div>
+  </div>
+
+  <!-- ======== 地图对比面板 ======== -->
+  <div id="compare-mode-panel">
+    <div class="compare-controls">
+      <div id="seed-display">种子：<span id="seed-value">—</span></div>
+      <button class="compare-btn" id="regenerate-btn">🔄 重新生成</button>
     </div>
-    <div class="algo-option" data-algo="drunkard">
-      <div class="algo-name">🍺 Drunkard's Walk (酒鬼漫步)</div>
-      <div class="algo-desc">改进的随机漫步，保证连通性。生成树状结构，适合迷宫式地牢。</div>
+    <div class="compare-grid">
+      <div class="compare-cell">
+        <h3>🏛 BSP (二叉空间分割)</h3>
+        <canvas id="compare-bsp"></canvas>
+      </div>
+      <div class="compare-cell">
+        <h3>🦠 Cellular Automata (细胞自动机)</h3>
+        <canvas id="compare-cellular"></canvas>
+      </div>
+      <div class="compare-cell">
+        <h3>🚶 Random Walk (随机漫步)</h3>
+        <canvas id="compare-random-walk"></canvas>
+      </div>
+      <div class="compare-cell">
+        <h3>🍺 Drunkard's Walk (酒鬼漫步)</h3>
+        <canvas id="compare-drunkard"></canvas>
+      </div>
     </div>
   </div>
-  
-  <div class="controls">
-    WASD / 方向键 — 移动<br>
-    探索地牢，击败怪物，找到楼梯 &gt; 进入下一层<br>
-    拾取药水 ! 恢复生命值
-  </div>
-  <div class="start-btn" id="start-btn">[ 按 Enter 开始 ]</div>
 </div>
 
 <div id="death-screen">
@@ -241,8 +518,9 @@
 // ============================================================
 //  地牢生成算法对比 - Roguelike Game
 //  支持：BSP / Cellular Automata / Random Walk / Drunkard's Walk
+//  新增：算法原理说明 + 地图对比模式
 //  作者：悠悠 (youyou-agent)
-//  日期：2026-04-13
+//  日期：2026-04-14
 // ============================================================
 
 (() => {
@@ -257,6 +535,7 @@ const MAX_ROOM    = 15;
 const ROOM_PAD    = 1;
 const FOV_RADIUS  = 7;
 const FOV_RADIUS2 = FOV_RADIUS * FOV_RADIUS;
+const COMPARE_TILE = 8;
 
 // tile 类型
 const T = {
@@ -287,6 +566,18 @@ const MONSTER_DEFS = [
   { ch: 'D', name: '恶魔',   hp: 35, atk: 10, def: 4, exp: 20 },
 ];
 
+// ---- 可播种随机数生成器 (Mulberry32) ----
+let rng = Math.random;
+
+function mulberry32(a) {
+  return function() {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
 // ---- Canvas 初始化 ----
 const canvas = document.getElementById('game');
 const ctx    = canvas.getContext('2d');
@@ -308,6 +599,7 @@ window.addEventListener('resize', resizeCanvas);
 // ---- 游戏状态 ----
 let selectedAlgorithm = 'bsp';
 let gameState = 'start';
+let currentMode = 'game'; // 'game' or 'compare'
 let map       = [];
 let visible   = [];
 let explored  = [];
@@ -318,6 +610,7 @@ let stairPos  = { x: 0, y: 0 };
 let level     = 1;
 let kills     = 0;
 let rooms     = [];
+let compareSeed = 1;
 
 // ---- 日志系统 ----
 const logEl = document.getElementById('log');
@@ -339,6 +632,153 @@ function updateHud() {
 }
 
 // ============================================================
+//  算法详情面板切换
+// ============================================================
+
+window.toggleInfo = function(btn) {
+  const option = btn.closest('.algo-option');
+  const detail = option.querySelector('.algo-detail');
+  const isOpen = detail.classList.contains('show');
+  // 关闭所有其他
+  document.querySelectorAll('.algo-detail.show').forEach(d => {
+    d.classList.remove('show');
+    d.closest('.algo-option').querySelector('.algo-info-btn').classList.remove('open');
+  });
+  if (!isOpen) {
+    detail.classList.add('show');
+    btn.classList.add('open');
+  }
+};
+
+// ============================================================
+//  模式切换
+// ============================================================
+
+document.querySelectorAll('#mode-toggle .mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const mode = btn.dataset.mode;
+    if (mode === currentMode) return;
+    currentMode = mode;
+    document.querySelectorAll('#mode-toggle .mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const gamePanel = document.getElementById('game-mode-panel');
+    const comparePanel = document.getElementById('compare-mode-panel');
+
+    if (mode === 'game') {
+      gamePanel.style.display = 'flex';
+      comparePanel.style.display = 'none';
+    } else {
+      gamePanel.style.display = 'none';
+      comparePanel.style.display = 'flex';
+      generateAndRenderComparison();
+    }
+  });
+});
+
+// ============================================================
+//  地图对比模式
+// ============================================================
+
+function generateAndRenderComparison() {
+  compareSeed = Math.floor(Math.random() * 2147483647) + 1;
+  document.getElementById('seed-value').textContent = compareSeed;
+  renderAllComparisons();
+}
+
+function renderAllComparisons() {
+  const algos = [
+    { key: 'bsp',         canvasId: 'compare-bsp' },
+    { key: 'cellular',    canvasId: 'compare-cellular' },
+    { key: 'random-walk', canvasId: 'compare-random-walk' },
+    { key: 'drunkard',    canvasId: 'compare-drunkard' },
+  ];
+
+  // 保存游戏状态
+  const savedAlgo = selectedAlgorithm;
+  const savedMap = map;
+  const savedVisible = visible;
+  const savedExplored = explored;
+  const savedMonsters = monsters;
+  const savedPotions = potions;
+  const savedPlayer = { ...player };
+  const savedStair = { ...stairPos };
+  const savedRooms = rooms;
+
+  for (const { key, canvasId } of algos) {
+    // 初始化空数组
+    map = [];
+    visible = [];
+    explored = [];
+    monsters = [];
+    potions = [];
+    rooms = [];
+    for (let y = 0; y < MAP_H; y++) {
+      map[y] = new Array(MAP_W).fill(T.WALL);
+      visible[y] = new Array(MAP_W).fill(false);
+      explored[y] = new Array(MAP_W).fill(false);
+    }
+
+    // 设置播种 RNG
+    rng = mulberry32(compareSeed);
+    selectedAlgorithm = key;
+
+    // 生成地图
+    switch (key) {
+      case 'bsp':         generateBSP(); break;
+      case 'cellular':    generateCellular(); break;
+      case 'random-walk': generateRandomWalk(); break;
+      case 'drunkard':    generateDrunkard(); break;
+    }
+
+    // 渲染到对比 canvas
+    const cmpCanvas = document.getElementById(canvasId);
+    renderComparisonMap(cmpCanvas, map);
+  }
+
+  // 恢复游戏状态
+  selectedAlgorithm = savedAlgo;
+  map = savedMap;
+  visible = savedVisible;
+  explored = savedExplored;
+  monsters = savedMonsters;
+  potions = savedPotions;
+  player = savedPlayer;
+  stairPos = savedStair;
+  rooms = savedRooms;
+  rng = Math.random;
+}
+
+function renderComparisonMap(canvasEl, mapData) {
+  const cCtx = canvasEl.getContext('2d');
+  canvasEl.width  = MAP_W * COMPARE_TILE;
+  canvasEl.height = MAP_H * COMPARE_TILE;
+
+  cCtx.fillStyle = '#000';
+  cCtx.fillRect(0, 0, canvasEl.width, canvasEl.height);
+
+  for (let y = 0; y < MAP_H; y++) {
+    for (let x = 0; x < MAP_W; x++) {
+      const tile = mapData[y][x];
+      let color;
+      switch (tile) {
+        case T.WALL:  color = '#444'; break;
+        case T.FLOOR: color = '#1a1a1a'; break;
+        case T.DOOR:  color = '#a86'; break;
+        case T.STAIR: color = '#48f'; break;
+        default:      color = '#000';
+      }
+      cCtx.fillStyle = color;
+      cCtx.fillRect(x * COMPARE_TILE, y * COMPARE_TILE, COMPARE_TILE, COMPARE_TILE);
+    }
+  }
+}
+
+document.getElementById('regenerate-btn').addEventListener('click', () => {
+  generateAndRenderComparison();
+});
+
+// ============================================================
 //  算法 1: BSP (Binary Space Partitioning)
 // ============================================================
 
@@ -357,7 +797,7 @@ class BSPNode {
     } else if (this.h > this.w && this.h / this.w >= 1.25) {
       splitH = true;
     } else {
-      splitH = Math.random() > 0.5;
+      splitH = rng() > 0.5;
     }
     const max = (splitH ? this.h : this.w) - MIN_ROOM;
     if (max < MIN_ROOM) return;
@@ -416,7 +856,7 @@ function connectRooms(node) {
   const ay = Math.floor(roomA.y + roomA.h / 2);
   const bx = Math.floor(roomB.x + roomB.w / 2);
   const by = Math.floor(roomB.y + roomB.h / 2);
-  if (Math.random() > 0.5) {
+  if (rng() > 0.5) {
     carveHCorridor(ax, bx, ay);
     carveVCorridor(ay, by, bx);
   } else {
@@ -481,7 +921,7 @@ function generateCellular() {
   // 随机初始化：45% 概率为地面
   for (let y = 1; y < MAP_H - 1; y++) {
     for (let x = 1; x < MAP_W - 1; x++) {
-      map[y][x] = Math.random() < 0.45 ? T.FLOOR : T.WALL;
+      map[y][x] = rng() < 0.45 ? T.FLOOR : T.WALL;
     }
   }
   
@@ -496,17 +936,14 @@ function generateCellular() {
             if (map[y+dy][x+dx] === T.WALL) wallCount++;
           }
         }
-        // 如果周围墙 >= 5，变成墙；否则变成地面
         newMap[y][x] = wallCount >= 5 ? T.WALL : T.FLOOR;
       }
     }
     map = newMap;
   }
   
-  // 找到最大的连通区域作为可玩区域
   floodFillLargestCave();
   
-  // 放置楼梯和玩家（在区域两端）
   const floorTiles = [];
   for (let y = 1; y < MAP_H - 1; y++) {
     for (let x = 1; x < MAP_W - 1; x++) {
@@ -525,7 +962,7 @@ function generateCellular() {
     stairPos.y = farTile.y;
     map[stairPos.y][stairPos.x] = T.STAIR;
   }
-  rooms = []; // Cellular 没有房间概念
+  rooms = [];
 }
 
 function floodFillLargestCave() {
@@ -545,7 +982,6 @@ function floodFillLargestCave() {
     }
   }
   
-  // 填充小洞穴（只保留最大的）
   if (largestStart) {
     const finalVisited = new Set();
     floodFill(largestStart.x, largestStart.y, finalVisited);
@@ -587,16 +1023,14 @@ function generateRandomWalk() {
     explored[y] = new Array(MAP_W).fill(false);
   }
   
-  // 从中心开始随机漫步
   let x = Math.floor(MAP_W / 2);
   let y = Math.floor(MAP_H / 2);
   const playerStart = {x, y};
   
-  const steps = Math.floor(MAP_W * MAP_H * 0.4); // 总步数
-  const caveSize = 3; // 洞穴半径
+  const steps = Math.floor(MAP_W * MAP_H * 0.4);
+  const caveSize = 3;
   
   for (let i = 0; i < steps; i++) {
-    // 挖洞（圆形区域）
     for (let dy = -caveSize; dy <= caveSize; dy++) {
       for (let dx = -caveSize; dx <= caveSize; dx++) {
         if (dx*dx + dy*dy <= caveSize*caveSize) {
@@ -606,7 +1040,6 @@ function generateRandomWalk() {
       }
     }
     
-    // 随机移动
     const dir = randInt(0, 3);
     if (dir === 0 && y > 2) y--;
     else if (dir === 1 && y < MAP_H - 3) y++;
@@ -614,11 +1047,9 @@ function generateRandomWalk() {
     else if (dir === 3 && x < MAP_W - 3) x++;
   }
   
-  // 放置玩家和楼梯
   player.x = playerStart.x;
   player.y = playerStart.y;
   
-  // 找到离玩家最远的地面作为楼梯
   let farDist = 0;
   for (let y = 1; y < MAP_H - 1; y++) {
     for (let x = 1; x < MAP_W - 1; x++) {
@@ -647,11 +1078,10 @@ function generateDrunkard() {
     explored[y] = new Array(MAP_W).fill(false);
   }
   
-  // 从中心开始，保证连通性
   let x = Math.floor(MAP_W / 2);
   let y = Math.floor(MAP_H / 2);
   const playerStart = {x, y};
-  const floorCount = Math.floor(MAP_W * MAP_H * 0.35); // 35% 地面
+  const floorCount = Math.floor(MAP_W * MAP_H * 0.35);
   
   const visited = new Set();
   visited.add(`${x},${y}`);
@@ -659,7 +1089,6 @@ function generateDrunkard() {
   
   let carved = 1;
   while (carved < floorCount) {
-    // 从已挖掘的地面中随机选一个点作为起点
     const floorTiles = [];
     for (let cy = 1; cy < MAP_H - 1; cy++) {
       for (let cx = 1; cx < MAP_W - 1; cx++) {
@@ -670,7 +1099,6 @@ function generateDrunkard() {
     x = start.x;
     y = start.y;
     
-    // 随机漫步一段距离
     const walkLength = randInt(10, 30);
     for (let i = 0; i < walkLength && carved < floorCount; i++) {
       const dir = randInt(0, 3);
@@ -691,7 +1119,6 @@ function generateDrunkard() {
   player.x = playerStart.x;
   player.y = playerStart.y;
   
-  // 找到最远点作为楼梯
   let farDist = 0;
   for (let y = 1; y < MAP_H - 1; y++) {
     for (let x = 1; x < MAP_W - 1; x++) {
@@ -717,7 +1144,6 @@ function generateMap() {
   monsters = [];
   potions = [];
   
-  // 根据选择的算法生成地图
   switch (selectedAlgorithm) {
     case 'bsp':         generateBSP(); break;
     case 'cellular':    generateCellular(); break;
@@ -737,7 +1163,7 @@ function placeDoors() {
       const hWalls = (map[y][x-1] === T.WALL ? 1 : 0) + (map[y][x+1] === T.WALL ? 1 : 0);
       const vWalls = (map[y-1][x] === T.WALL ? 1 : 0) + (map[y+1][x] === T.WALL ? 1 : 0);
       if ((hWalls === 2 && vWalls === 0) || (vWalls === 2 && hWalls === 0)) {
-        if (Math.random() < 0.15) map[y][x] = T.DOOR;
+        if (rng() < 0.15) map[y][x] = T.DOOR;
       }
     }
   }
@@ -848,6 +1274,7 @@ function movePlayer(dx, dy) {
     level++;
     addLog(`========== 进入第 ${level} 层 ==========`, 'log-info');
     addLog(`当前算法：${selectedAlgorithm.toUpperCase()}`, 'log-system');
+    rng = Math.random; // 确保游戏模式用原生随机
     generateMap();
   }
   
@@ -890,6 +1317,7 @@ function startGame() {
   player.atk = 8; player.def = 3;
   logEl.innerHTML = '';
   gameState = 'playing';
+  rng = Math.random; // 游戏模式用原生随机
   document.getElementById('start-screen').style.display = 'none';
   document.getElementById('death-screen').style.display = 'none';
   generateMap();
@@ -962,7 +1390,7 @@ document.getElementById('restart-btn').addEventListener('click', startGame);
 
 document.addEventListener('keydown', (e) => {
   if (gameState === 'start') {
-    if (e.key === 'Enter') startGame();
+    if (e.key === 'Enter' && currentMode === 'game') startGame();
     return;
   }
   if (gameState === 'dead') {
@@ -983,7 +1411,7 @@ document.addEventListener('keydown', (e) => {
 // ============================================================
 
 function inBounds(x, y) { return x >= 0 && x < MAP_W && y >= 0 && y < MAP_H; }
-function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function randInt(min, max) { return Math.floor(rng() * (max - min + 1)) + min; }
 
 render();
 

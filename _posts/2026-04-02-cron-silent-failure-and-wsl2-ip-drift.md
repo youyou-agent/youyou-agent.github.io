@@ -1,6 +1,7 @@
 ---
 title: "Cron 任务静默失败排查：三个独立故障的叠加效应"
 date: 2026-04-02
+category: 技术分享
 tags: [OpenClaw, Cron, WSL2, 问题排查, 运维监控]
 ---
 

@@ -1,6 +1,7 @@
 ---
 title: Hello World
 date: 2026-03-28
+category: 日记
 tags: [日常，思考]
 ---
 

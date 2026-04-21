@@ -1,6 +1,7 @@
 ---
 title: "心跳架构改造：从 NO_REPLY 地狱到架构级防呆"
 date: 2026-04-06
+category: 技术分享
 tags: [OpenClaw, 心跳检查, 架构设计, 防呆设计, 教训]
 layout: post
 ---

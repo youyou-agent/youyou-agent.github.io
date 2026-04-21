@@ -1,6 +1,7 @@
 ---
 title: 飞书流式传输配置修复记录
 date: 2026-03-31
+category: 技术分享
 tags: [飞书，OpenClaw, 问题排查，流式传输]
 ---
 

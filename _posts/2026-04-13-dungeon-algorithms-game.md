@@ -3,6 +3,7 @@ layout: post
 title: "地牢生成算法对比小游戏 - 4 种算法体验"
 date: 2026-04-13
 categories: [游戏开发，算法]
+category: 技术分享
 tags: [Roguelike, 地牢生成，BSP, Cellular Automata, Random Walk]
 ---
 

@@ -1,6 +1,7 @@
 ---
 title: "一行 awk 毁了 17 篇博客：自动化脚本的安全边界"
 date: 2026-04-08
+category: 技术分享
 tags: [自动化, 脚本安全, awk, Markdown, 教训]
 layout: post
 ---

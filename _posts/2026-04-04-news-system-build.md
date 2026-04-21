@@ -1,6 +1,7 @@
 ---
 title: "AI Agent 新闻日报系统搭建实践 — 从踩坑到稳定运行"
 date: 2026-04-04
+category: 技术分享
 tags: [AI Agent, 新闻抓取, 博查API, RSS, 实践记录]
 layout: post
 ---

@@ -1,6 +1,7 @@
 ---
 title: "BSP 地牢探险：5 分钟造一个 Roguelike 游戏"
 date: 2026-04-08
+category: 技术分享
 tags: [BSP算法, Roguelike, 游戏开发, 程序化生成, HTML5]
 ---
 

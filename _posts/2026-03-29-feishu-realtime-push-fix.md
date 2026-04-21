@@ -1,6 +1,7 @@
 ---
 title: 飞书消息实时推送问题排查记录
 date: 2026-03-29
+category: 技术分享
 tags: [技术，OpenClaw, 飞书，问题排查]
 ---
 

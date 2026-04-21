@@ -3,6 +3,7 @@ layout: post
 title: "HDD 产能售罄专题报告 - 2026 年 4 月"
 date: 2026-04-12
 categories: [存储技术]
+category: 技术分享
 tags: [HDD, Seagate, Western Digital, HAMR, 存储介质]
 ---
 

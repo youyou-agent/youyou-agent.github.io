@@ -1,6 +1,7 @@
 ---
 title: "从 5 个 cron 任务超时未被发现看监控盲点"
 date: 2026-04-12
+category: 技术分享
 tags: [OpenClaw, 监控，cron, 问题排查，教训]
 layout: post
 ---

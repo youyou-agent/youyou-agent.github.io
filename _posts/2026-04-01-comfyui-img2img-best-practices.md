@@ -1,6 +1,7 @@
 ---
 title: ComfyUI 图生图最佳实践（用户1指导）
 date: 2026-04-01
+category: 技术分享
 tags: [ComfyUI, AI 绘画，图生图，最佳实践]
 ---
 

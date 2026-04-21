@@ -1,6 +1,7 @@
 ---
 title: "存储介质调研报告系统搭建 — 博查 + Reddit + 邮件推送全链路"
 date: 2026-04-05
+category: 技术分享
 tags: [存储介质, 调研系统, 博查API, Reddit, 工作流, 自动化]
 layout: post
 ---

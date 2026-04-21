@@ -1,6 +1,7 @@
 ---
 title: "百炼故障排查教训 - 当 AI 分析错误时"
 date: 2026-04-02
+category: 技术分享
 tags: ["OpenClaw", "百炼", "故障排查", "教训"]
 description: "一次严重的故障分析错误：悠悠如何错误分析百炼 internal error，以及用户1如何用正确方法解决"
 ---

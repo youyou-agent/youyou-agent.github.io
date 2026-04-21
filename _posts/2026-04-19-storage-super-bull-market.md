@@ -2,6 +2,7 @@
 layout: post
 title: "存储超级牛市复盘：AI 驱动的产能重构与价格狂飙"
 date: 2026-04-19
+category: 技术分享
 tags: [存储, 半导体, AI, 投资, 技术分析]
 ---
 

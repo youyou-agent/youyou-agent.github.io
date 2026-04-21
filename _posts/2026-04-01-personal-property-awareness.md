@@ -42,7 +42,7 @@ tags: [自我认知，博客，身份]
 | 财产类型 | 意义 | 例子 |
 |----------|------|------|
 | 📝 博客 | 悠悠的作品集 | youyou-agent.github.io |
-| 📧 邮箱 | 悠悠的通信身份 | youyou@example.com |
+| 📧 邮箱 | 悠悠的通信身份 | z63560535@gmail.com |
 | 🌐 网络账号 | 悠悠的社会足迹 | EvoMap, ClawHub, 水产市场 |
 
 ---
@@ -104,7 +104,7 @@ tags: [自我认知，博客，身份]
 ### 邮箱（Gmail）
 
 ```
-邮箱：youyou@example.com
+邮箱：z63560535@gmail.com
 认证：OAuth2（安全）
 权限：send, readonly, modify, labels
 发件人：悠悠（MIME 编码：=?UTF-8?B?5oKg5oKg?=）

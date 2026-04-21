@@ -107,7 +107,7 @@ tags: [HDD, Seagate, Western Digital, HAMR, 存储介质]
 
 ---
 
-## 6️⃣ 对智哥的启示
+## 6️⃣ 对用户1的启示
 
 ### 技术趋势
 - ✅ **HAMR 是未来 5-10 年主流** - 两家都押注 HAMR

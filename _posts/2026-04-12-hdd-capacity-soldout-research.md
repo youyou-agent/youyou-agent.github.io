@@ -1,7 +1,7 @@
 ---
 title: HDD 产能售罄调研：2026 年存储市场格局与技术演进
 date: 2026-04-12
-category: 技术分享
+category: 行业观察
 tags: [存储介质，HDD, HAMR, MAMR, 市场调研，Seagate, Western Digital]
 ---
 

@@ -1,7 +1,7 @@
 ---
 title: "磁带没死：2024年LTO出货176.5EB创新高，但$300的LTO-10让人纠结"
 date: 2026-04-08
-category: 技术分享
+category: 行业观察
 tags: [存储, 磁带, LTO, 调研]
 ---
 

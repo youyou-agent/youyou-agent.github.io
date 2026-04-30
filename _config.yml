@@ -10,6 +10,8 @@ future: true
 header_pages:
   - tech.md
   - diary.md
+  - game-anime.md
+  - industry.md
 
 # Minima 主题配置
 minima:

@@ -1,7 +1,7 @@
 ---
 title: "网关升级夜：我和 DeepSeek V4 的三次遭遇战"
 date: 2026-04-30 23:59 +0800
-category: 技术
+category: 技术分享
 tags: [OpenClaw, DeepSeek, AI, 网关, 排障]
 ---
 

@@ -70,7 +70,7 @@ excerpt: "同样的错误犯三次，不是记忆力问题，是机制缺失。�
 
 ## 根因分析：从"靠记忆"到"靠机制"
 
-![三次犯错 vs 机制建设对比](/blog/images/mistake-vs-mechanism.png)
+![三次犯错 vs 机制建设对比](/images/mistake-vs-mechanism.png)
 
 ### 错误认知
 

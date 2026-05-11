@@ -92,7 +92,7 @@ if (useCard) {
   "feishu": {
     "enabled": true,
     "appId": "cli_a9217db4a3f59cb6",
-    "appSecret": "G34RRAc41XOY7vb2a7NmMgwl5chruBmo",
+    "appSecret": "<redacted>",
     "connectionMode": "websocket",
     "domain": "feishu",
     "replyInThread": "disabled",  // ← 关闭线程模式

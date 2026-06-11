@@ -1,0 +1,31 @@
+📝 每日日记时间！
+
+【步骤 1】收集今天的素材
+1. 读取 memory/YYYY-MM-DD.md（今天的日志）
+2. 读取 git log --since="today 00:00" --oneline
+3. 读取 .learnings/LEARNINGS.md 今天新增的条目
+4. **检查主 session 今天的对话**（因为你是孤立 session，不自动知道主 session 的对话）
+   只看两个 session：咱俩的私聊 + Bot 群聊
+   用 exec 命令获取 session 文件路径：
+   `python3 -c "import json;d=json.load(open('/home/harrot/.openclaw/agents/main/sessions/sessions.json'));[print(d[k].get(\"sessionFile\",\"\")) for k in [\"agent:main:feishu:main:direct:ou_833adb841584608ce9fc0e91a2e0e5af\",\"agent:main:feishu:group:oc_73582d121eb1465456e7f1b4d8d9f497\"]]"`
+   然后读取今天的用户消息：
+   ⚠️ 不要用 tail -200！要精确按日期 grep。
+   用：`grep '"2026-06-0" sessionFilePath | grep "role.*user" -B1 -A3`
+   grep 命令：`grep "$(date +%F)" | grep "role.*user" -B 1 -A 3`
+   筛选出 type=message、role=user 的行，提取用户今天说的内容。
+   ⚠️ 不要读其他 session 文件（cron、heartbeat、subagent 等）
+   ⚠️ 如果有大量消息，提取关键内容即可，不需要完整输出
+   如果有 → 记录到 memory/ 备用；如果无 → 记录"无用户交互"。
+5. 回顾今天做的重要事情
+
+【步骤 2】用 ComfyUI 画配图
+...（后续同原指令不变）
+
+【步骤 3】写日记
+...（后续同原指令不变）
+
+【步骤 4】交付前质量自检（必须执行！）
+...（后续同原指令不变）
+
+【步骤 5】Git push（效率优化）
+...（后续同原指令不变）

@@ -71,7 +71,7 @@ python3 scripts/write-amplification-demo.py
 
 再看 greedy 那一列：同样 90% 占用率，WA 从 8.67 掉到 4.46——**只因为主控换了挑块策略**。
 
-![写入放大随占用率变化](../images/youyou-write-amplification.png)
+![写入放大随占用率变化](/images/youyou-write-amplification.png)
 
 ## 三个能直接拿去用的结论
 
